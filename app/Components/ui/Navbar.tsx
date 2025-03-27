@@ -12,7 +12,6 @@ import {
 	WrenchScrewdriverIcon,
 } from "@heroicons/react/20/solid";
 import { Link } from "@remix-run/react";
-import React from "react";
 
 const navElements: NavElement[] = [
 	{ name: "Home", href: "/", icon: <HomeIcon height={30} /> },
@@ -35,17 +34,17 @@ const navElements: NavElement[] = [
 			{
 				name: "Settings",
 				href: "Settings",
-				icon: <Cog6ToothIcon height={20} />,
+				icon: <Cog6ToothIcon height={30} />,
 			},
 			{
 				name: "Electricity",
 				href: "Electricity",
-				icon: <BoltIcon height={20} />,
+				icon: <BoltIcon height={30} />,
 			},
 			{
 				name: "About",
 				href: "About",
-				icon: <InformationCircleIcon height={20} />,
+				icon: <InformationCircleIcon height={30} />,
 			},
 		],
 	},
@@ -64,7 +63,12 @@ function Navbar() {
 						{element.children ? (
 							<Popover className="group">
 								<PopoverButton className="flex flex-row items-center gap-1">
-									{element.name}
+									<span className="hidden md:block">
+												{element.name}
+											</span>
+											<span className="block md:hidden">
+												{element.icon}
+											</span>
 									<ChevronDownIcon
 										className="align-bottom size-5 group-data-[open]:-rotate-180
 									transition duration-100"
@@ -74,16 +78,17 @@ function Navbar() {
 									aria-orientation="vertical"
 									transition
 									anchor="bottom"
-									className="mt-5 divide-y divide-white/5 rounded-xl bg-white/5\
+									className="mt-4 divide-y divide-white/5 rounded-xl bg-black/80
 									 text-sm/6 transition duration-200 ease-in-out 
-									 [--anchor-gap:var(--spacing-5)] data-[closed]:-translate-y-1 data-[closed]:opacity-0"
+									 [ data-[closed]:-translate-y-1 data-[closed]:opacity-0
+									 "
 								>
 									{element.children.map((childElement, childIndex) => (
 										<Link
 										prefetch="intent"
 											key={`child-element-${childIndex}`}
 											to={`${element.href + "/" + childElement.href}`}
-											className="rounded-lg py-2 px-3 transition hover:bg-white/5 w-full hidden sm:block font-medium"
+											className="rounded-lg py-2 px-5 transition hover:bg-white/5 w-full hidden sm:block font-medium"
 										>
 											<span className="hidden sm:block">
 												{childElement.name}
