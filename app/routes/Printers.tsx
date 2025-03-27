@@ -13,8 +13,8 @@ export const meta: MetaFunction = () => {
 export default function Index() {
 	return (
 		<>
-			<Mainpage />
-			{/* <Printers /> */}
+			{/* <Mainpage /> */}
+			<Printers />
 		</>
 	);
 }
