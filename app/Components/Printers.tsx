@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from "react";
 import Navbar from "./ui/Navbar";
-import { Consumable, Printer } from "~/types/Printer";
+import { Consumable, Printer, Upgrade } from "~/types/Printer";
 import { Form } from "@remix-run/react";
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 
@@ -13,7 +13,7 @@ const data: Printer[] = [
 		name: "Bambu-Lab X1Carbon",
 		cost: 1800,
 		consumption: 50,
-		updgrades: [
+		upgrades: [
 			{
 				name: "Nozzle Biqu Hotend Revo RapidChange",
 				price: 150,
@@ -58,7 +58,7 @@ const data: Printer[] = [
 		name: "Mars 3 Pro",
 		cost: 300,
 		consumption: 50,
-		updgrades: [
+		upgrades: [
 			{
 				name: "Jacuzzy mode with bubbles",
 				price: 45,
@@ -83,7 +83,7 @@ const data: Printer[] = [
 		name: "Creality ender 3",
 		cost: 1800,
 		consumption: 50,
-		updgrades: [
+		upgrades: [
 			{
 				name: "BLTouch Auto Bed Leveling Sensor",
 				price: 69,
@@ -125,12 +125,58 @@ const data: Printer[] = [
 	},
 ];
 
+function GenericTable<T>({
+	data,
+	headers,
+	removeElement,
+}: {
+	data: T[];
+	headers: { key: keyof T; label: string }[];
+	removeElement: (item: T) => void;
+}) {
+	return (
+		<table className="table-auto rounded-lg">
+			<thead>
+				<tr className="bg-gray-900">
+					{headers.map((header, idx) => (
+						<th key={idx} className="border px-4 py-2 ">
+							{header.label}
+						</th>
+					))}
+					<th className="border px-4">Remove</th>
+				</tr>
+			</thead>
+			<tbody>
+				{data.map((item, index) => (
+					<tr
+						key={index}
+						className={`border py-1 px-2 ${index % 2 ? "bg-gray-900/50" : ""}`}
+					>
+						{headers.map((header, idx) => (
+							<td key={idx} className="border py-1 px-2">
+								{String(item[header.key])}
+							</td>
+						))}
+						<td className="border py-1 px-2 text-center">
+							<button
+								className="bg-red-900 text-white px-2 rounded "
+								onClick={() => removeElement(item)}
+							>
+								X
+							</button>
+						</td>
+					</tr>
+				))}
+			</tbody>
+		</table>
+	);
+}
 const NewPrinter: Printer = {
 	image: "",
 	name: "",
 	cost: 0,
 	consumption: 0,
-	updgrades: [],
+	upgrades: [],
 	consumables: [],
 };
 
@@ -140,25 +186,37 @@ const NewConsumable: Consumable = {
 	usedTime: 0,
 };
 
+const NewUpgrade: Upgrade = {
+	name: "",
+	price: 0,
+	installDate: "",
+};
+
 function Printers() {
 	const [selectedPrinter, setSelectedPrinter] = useState(data[0]);
 	const [newPrinter, setNewPrinter] = useState(NewPrinter);
 	const [newConsumable, setNewConsumable] = useState(NewConsumable);
-	function newPrinterAddConsumable(consumable: Consumable): void {
+	const [newUpgrade, setNewUpgrade] = useState(NewUpgrade);
+
+	function newPrinterAddConsumable(): void {
 		const updatedConsumables = [...newPrinter.consumables];
-		updatedConsumables.push(consumable);
+		console.log(newPrinter.consumables);
+		updatedConsumables.push(newConsumable);
 		setNewPrinter({
 			...newPrinter,
 			consumables: updatedConsumables,
 		});
+		console.log(newPrinter.consumables);
 	}
+
 	function newPrinterRemoveConsumable(consumable: Consumable): void {
-		const newConsumables = [...newPrinter.consumables].filter(
-			(elem) =>
-				elem.name != consumable.name &&
-				elem.lifeTime != consumable.lifeTime &&
-				elem.usedTime != consumable.usedTime
-		);
+		const newConsumables = [...newPrinter.consumables].filter((elem) => {
+			const isSameConsumable =
+				elem.name === consumable.name &&
+				elem.lifeTime === consumable.lifeTime &&
+				elem.usedTime === consumable.usedTime;
+			return !isSameConsumable;
+		});
 
 		setNewPrinter({
 			...newPrinter,
@@ -166,8 +224,33 @@ function Printers() {
 		});
 	}
 
-	function createPrinter(event: FormEvent<HTMLFormElement>): void {
-		event.preventDefault();
+	function newPrinterAddUpgrade(): void {
+		const updatedUpgrades = [...newPrinter.upgrades];
+		console.log(newPrinter.upgrades);
+		updatedUpgrades.push(newUpgrade);
+		setNewPrinter({
+			...newPrinter,
+			upgrades: updatedUpgrades,
+		});
+		console.log(newPrinter.upgrades);
+	}
+
+	function newPrinterRemoveUpgrade(upgrade: Upgrade): void {
+		const newUpgrades = [...newPrinter.upgrades].filter((elem) => {
+			const isSameUpgrade =
+				elem.name === upgrade.name &&
+				elem.installDate === upgrade.installDate &&
+				elem.price === upgrade.price;
+			return !isSameUpgrade;
+		});
+
+		setNewPrinter({
+			...newPrinter,
+			upgrades: newUpgrades,
+		});
+	}
+
+	function createPrinter(): void {
 		if (!newPrinter.name || !newPrinter.image || newPrinter.cost <= 0) {
 			console.log("Please fill in all required fields with valid values.");
 			return;
@@ -203,7 +286,7 @@ function Printers() {
 								</div>
 								<div className="relative group">
 									<div className="text-xs">
-										{printer.updgrades.length + " Options"}
+										{printer.upgrades.length + " Options"}
 									</div>
 								</div>
 							</div>
@@ -220,7 +303,7 @@ function Printers() {
 						</div>
 						<ul className="p-2 text-xs">
 							<h1 className="text-base">Liste des options:</h1>
-							{selectedPrinter.updgrades.map((upgrade, index) => (
+							{selectedPrinter.upgrades.map((upgrade, index) => (
 								<li
 									key={index}
 									className={`flex justify-between items-center hover:underline h-6
@@ -245,8 +328,8 @@ function Printers() {
 				</div>
 				{/* Ajout imprimante */}
 				<div className="justify-between m-4 min-h-max rounded-xl border border-gray-700 p-2">
-					<h1 className="mb-4">Ajouter une imprimante</h1>
-					<TabGroup className="ml-4">
+					<h1 className="mb-2">Ajouter une imprimante</h1>
+					<TabGroup className="ml-4 border border-gray-700 rounded-lg my-6 p-2 pb-6 ">
 						<TabList className="mb-4">
 							<Tab className="py-2 px-4 data-[selected]:bg-gray-900 rounded-lg">
 								Base infos
@@ -263,117 +346,169 @@ function Printers() {
 								{newPrinterBase(createPrinter, setNewPrinter, newPrinter)}
 							</TabPanel>
 							<TabPanel>
-								<label className="flex flex-col text-base gap-1 mb-2">
-									Name of consumable
-									<input
-										className="bg-gray-900 rounded-lg pl-2 p-1 w-56"
-										onChange={(e) =>
-											setNewConsumable({
-												...newConsumable,
-												name: e.target.value,
-											})
-										}
-									/>
-								</label>
-								<label className="flex flex-col text-base gap-1 mb-2">
-									Expected lifetime
-									<div>
-										<input
-											className="bg-gray-900 rounded-lg pl-2 p-1 w-20"
-											type="number"
-											dir="rtl"
-											onChange={(e) =>
-												setNewConsumable({
-													...newConsumable,
-													lifeTime: Number(e.target.value),
-												})
-											}
+								<div className="flex flex-row gap-4">
+									{newPrinter.consumables.length ? (
+										<GenericTable
+											data={newPrinter.consumables}
+											headers={[
+												{ key: "name", label: "Name" },
+												{ key: "lifeTime", label: "Expected lifetime" },
+												{ key: "usedTime", label: "Time of use" },
+											]}
+											removeElement={newPrinterRemoveConsumable}
 										/>
-										{" H"}
+									) : (
+										<div className="text-center text-3xl">
+											<br />
+											<br />
+											no consumables
+										</div>
+									)}
+
+									<div className="">
+										<label className="flex flex-col text-base gap-1 mb-2">
+											Name of consumable
+											<input
+												className="bg-gray-900 rounded-lg pl-2 p-1 w-56"
+												value={newConsumable.name}
+												onChange={(e) =>
+													setNewConsumable({
+														...newConsumable,
+														name: e.target.value,
+													})
+												}
+											/>
+										</label>
+										<label className="flex flex-col text-base gap-1 mb-2">
+											Expected lifetime
+											<div>
+												<input
+													className="bg-gray-900 rounded-lg pl-2 py-1 w-20 text-right"
+													type="number"
+													value={newConsumable.lifeTime}
+													onChange={(e) =>
+														setNewConsumable({
+															...newConsumable,
+															lifeTime: Number(e.target.value),
+														})
+													}
+												/>
+												{" H"}
+											</div>
+										</label>
+										<label className="flex flex-col text-base gap-1 mb-2">
+											used time
+											<div>
+												<input
+													className="bg-gray-900 rounded-lg pl-2 p-1 w-20 text-right"
+													type="number"
+													value={newConsumable.usedTime}
+													onChange={(e) =>
+														setNewConsumable({
+															...newConsumable,
+															usedTime: Number(e.target.value),
+														})
+													}
+												/>
+												{" H"}
+											</div>
+										</label>
+										<button
+											className="py-2 px-4 bg-gray-900 rounded-lg border"
+											onClick={newPrinterAddConsumable}
+										>
+											Ajouter
+										</button>
 									</div>
-								</label>
-								<label className="flex flex-col text-base gap-1 mb-2">
-									used time
-									<div>
-										<input
-											className="bg-gray-900 rounded-lg pl-2 p-1 w-20"
-											type="number"
-											dir="rtl"
-											onChange={(e) =>
-												setNewConsumable({
-													...newConsumable,
-													usedTime: Number(e.target.value),
-												})
-											}
-										/>
-										{" H"}
-									</div>
-								</label>
-								<button
-									className="py-2 px-4 bg-gray-900 rounded-lg border"
-									onClick={() => newPrinterAddConsumable}
-								>
-									Ajouter
-								</button>
+								</div>
 							</TabPanel>
-							<TabPanel>Content 3</TabPanel>
+							<TabPanel>
+								{/* export interface Upgrade {
+									id?: number;
+									name: string;
+									price: number;
+									installDate: string;
+									consumable?: Consumable
+								} */}
+								<div className="flex flex-row gap-4">
+									{newPrinter.upgrades.length ? (
+										<GenericTable
+											data={newPrinter.upgrades}
+											headers={[
+												{ key: "name", label: "Name" },
+												{ key: "price", label: "Price" },
+												{ key: "installDate", label: "Date of install" },
+											]}
+											removeElement={newPrinterRemoveUpgrade}
+										/>
+									) : (
+										<div className="text-center text-3xl">
+											<br />
+											<br />
+											no upgrades
+										</div>
+									)}
+
+									<div className="">
+										<label className="flex flex-col text-base gap-1 mb-2">
+											Name of upgrade
+											<input
+												className="bg-gray-900 rounded-lg pl-2 p-1 w-full"
+												onChange={(e) =>
+													setNewUpgrade({
+														...newUpgrade,
+														name: e.target.value,
+													})
+												}
+											/>
+										</label>
+										<label className="flex flex-col text-base gap-1 mb-2">
+											Price
+											<div>
+												<input
+													className="bg-gray-900 rounded-lg pl-2 p-1 w-[calc(100% - 15px)] text-right"
+													type="number"
+													onChange={(e) =>
+														setNewUpgrade({
+															...newUpgrade,
+															price: Number(e.target.value),
+														})
+													}
+												/>
+												{" €"}
+											</div>
+										</label>
+										<label className="flex flex-col text-base gap-1 mb-2">
+											Install date
+											<div>
+												<input
+													className="bg-gray-900 rounded-lg pl-2 p-1 w-full"
+													type="date"
+													dir="rtl"
+													onChange={(e) =>
+														setNewUpgrade({
+															...newUpgrade,
+															installDate: e.target.value,
+														})
+													}
+												/>
+											</div>
+										</label>
+										<button
+											className="py-2 px-4 bg-gray-900 rounded-lg border"
+											onClick={newPrinterAddUpgrade}
+										>
+											Ajouter
+										</button>
+									</div>
+								</div>
+							</TabPanel>
 						</TabPanels>
 					</TabGroup>
 
-					{/* Table to show new consumables*/}
-					{/* <div>
-								{newPrinter.consumables.map((consumable, index) => (
-									<div className="flex flex-row">
-										<div key={index}>{consumable.name}</div>
-										<div key={index}>{consumable.usedTime}</div>
-										<div key={index}>{consumable.lifeTime}</div>
-									</div>
-								))}
-								Add new consumable
-								<div>
-									<label className="flex flex-col text-xs gap-1 mb-2">
-										Name of consumable
-										<input
-											className="bg-gray-900 rounded-lg pl-2 p-1"
-											onChange={(e) =>
-												setNewPrinter({
-													...newPrinter,
-													consumables: [
-														...newPrinter.consumables,
-														{ name: e.target.value, lifeTime: 0, usedTime: 0 },
-													],
-												})
-											}
-										/>
-									</label>
-									<label className="flex flex-col text-xs gap-1 mb-2">
-										Expected lifetime
-										<input
-											className="bg-gray-900 rounded-lg pl-2 p-1"
-											type="number"
-											onChange={(e) => {
-												const updatedConsumables = [...newPrinter.consumables];
-												const lastConsumable = updatedConsumables.pop();
-												if (lastConsumable) {
-													updatedConsumables.push({
-														...lastConsumable,
-														lifeTime: Number(e.target.value),
-													});
-												}
-												setNewPrinter({
-													...newPrinter,
-													consumables: updatedConsumables,
-												});
-											}}
-										/>
-									</label>
-								</div>
-							</div> */}
-					{/* Table  to add Options */}
-
 					<button
 						className=" bg-gradient-to-t from-gray-900 to-gray-800 m-2 p-2  px-4 rounded-lg border"
-						type="submit"
+						onClick={createPrinter}
 					>
 						{newPrinter.id == undefined ? "Create " : "Update"}
 					</button>

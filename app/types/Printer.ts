@@ -3,6 +3,7 @@ export interface Upgrade {
 	name: string;
 	price: number;
 	installDate: string;
+	consumable?: Consumable
 }
 
 export interface Consumable {
@@ -18,6 +19,6 @@ export interface Printer {
 	name: string;
 	cost: number;
 	consumption: number;
-	updgrades: Upgrade[];
+	upgrades: Upgrade[];
 	consumables: Consumable[];
 }
