@@ -2,6 +2,7 @@ import { Consumable, Printer, Upgrade } from "~/types/Printer";
 import { Form } from "@remix-run/react";
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import GenericTable from "~/Components/ui/GenericTable";
+import NewPrinterBase from "./BaseInfos";
 
 interface NewPrinterFormProps {
 	newPrinter: Printer;
@@ -17,86 +18,7 @@ interface NewPrinterFormProps {
 	createPrinter: () => void;
 }
 
-// Base information form
-function NewPrinterBase({
-	setNewPrinter,
-	newPrinter,
-}: {
-	setNewPrinter: (printer: Printer) => void;
-	newPrinter: Printer;
-}) {
-	return (
-		<Form className="grid grid-cols-3 grid-flow-row w-full gap-6">
-			<div>
-				<label
-					className="flex flex-col text-xs gap-1 mb-2"
-					htmlFor="printerName"
-				>
-					Name
-					<input
-						className="bg-gray-900 rounded-lg pl-2 p-1"
-						id="printerName"
-						onChange={(e) =>
-							setNewPrinter({ ...newPrinter, name: e.target.value })
-						}
-					/>
-				</label>
 
-				<label
-					className="flex flex-col text-xs gap-1 mb-2"
-					htmlFor="printerCost"
-				>
-					Price
-					<input
-						className="bg-gray-900 rounded-lg pl-2 p-1"
-						id="printerCost"
-						type="number"
-						onChange={(e) =>
-							setNewPrinter({
-								...newPrinter,
-								cost: Number(e.target.value),
-							})
-						}
-					/>
-				</label>
-
-				<label
-					className="flex flex-col text-xs gap-1 mb-2"
-					htmlFor="printerImage"
-				>
-					Image
-					<input
-						className="bg-gray-900 rounded-lg pl-2 p-1"
-						id="printerImage"
-						onChange={(e) =>
-							setNewPrinter({
-								...newPrinter,
-								image: e.target.value,
-							})
-						}
-					/>
-				</label>
-				<label
-					className="flex flex-col text-xs gap-1 mb-2"
-					htmlFor="printerConsumption"
-				>
-					Consumption (kw/h)
-					<input
-						className="bg-gray-900 rounded-lg pl-2 p-1"
-						id="printerConsumption"
-						type="number"
-						onChange={(e) =>
-							setNewPrinter({
-								...newPrinter,
-								consumption: Number(e.target.value),
-							})
-						}
-					/>
-				</label>
-			</div>
-		</Form>
-	);
-}
 
 export default function NewPrinterForm({
 	newPrinter,

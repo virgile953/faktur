@@ -14,7 +14,7 @@ export default function PrinterDetails({
 			<div className="w-full p-2 col-span-2">
 				<div className="flex flex-row justify-between mr-2">
 					<div>{selectedPrinter.name}</div>
-					<div>{selectedPrinter.cost + " €"}</div>
+					<div>{selectedPrinter.price + " €"}</div>
 				</div>
 
 				{/* Options table */}
@@ -52,7 +52,7 @@ export default function PrinterDetails({
 				<img
 					src={selectedPrinter.image}
 					alt={selectedPrinter.name}
-					className="h-full w-full rounded-r-xl object-cover border border-red-700"
+					className="h-full w-full rounded-r-xl object-cover"
 				/>
 			</div>
 		</div>

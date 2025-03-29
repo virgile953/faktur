@@ -29,7 +29,7 @@ export default function PrintersList({
 					<div className="flex flex-col p-2 text-sm justify-between">
 						<div className="flex flex-col">
 							<div>{printer.name}</div>
-							<div>{printer.cost + " €"}</div>
+							<div>{printer.price + " €"}</div>
 						</div>
 						<div className="relative group">
 							<div className="text-xs">

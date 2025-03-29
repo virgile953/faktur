@@ -1,20 +1,23 @@
-import type { MetaFunction } from "@remix-run/node";
-import Mainpage from "~/Components/Mainpage";
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
+import { getAllPrinters, createPrinter } from "~/db/printers.server";
 import Printers from "~/Components/Printers";
-import { useLocation } from "@remix-run/react";
 
-export const meta: MetaFunction = () => {
-	return [
-		{ title: "Coucou" },
-		{ name: "description", content: "Welcome to the jungle!" },
-	];
-};
+export async function loader({}: LoaderFunctionArgs) {
+	const printers = getAllPrinters();
+	return { printers };
+}
 
-export default function Index() {
-	return (
-		<>
-			{/* <Mainpage /> */}
-			<Printers />
-		</>
-	);
+export async function action({ request }: { request: Request }) {
+	const formData = await request.formData();
+	const printerData = JSON.parse(formData.get("printerData") as string);
+
+	const newPrinter = createPrinter(printerData);
+	return { success: true, printer: newPrinter };
+}
+
+export default function PrintersPage() {
+	const { printers } = useLoaderData<typeof loader>();
+
+	return <Printers initialPrinters={printers} />;
 }

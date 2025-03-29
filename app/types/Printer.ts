@@ -18,7 +18,7 @@ export interface Printer {
 	id?: number;
 	image: string;
 	name: string;
-	cost: number;
+	price: number;
 	consumption: number;
 	upgrades: Upgrade[];
 	consumables: Consumable[];
