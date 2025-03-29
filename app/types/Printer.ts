@@ -11,6 +11,7 @@ export interface Consumable {
 	name: string;
 	lifeTime: number;
 	usedTime: number;
+	price: number;
 }
 
 export interface Printer {
