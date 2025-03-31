@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { MetaFunction, useLoaderData } from "@remix-run/react";
 import {
 	getAllPrinters,
 	createPrinter,
@@ -13,6 +13,15 @@ export async function loader({}: LoaderFunctionArgs) {
 	const printers = getAllPrinters();
 	return { printers };
 }
+
+
+export const meta: MetaFunction = () => {
+	return [
+		{ title: "Printers" },
+		{ name: "Printers", content: "List of configured printers" },
+	];
+};
+
 
 export async function action({ request }: { request: Request }) {
 	const formData = await request.formData();

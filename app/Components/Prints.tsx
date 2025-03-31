@@ -1,4 +1,7 @@
+import { Filament } from "~/types/Filament";
 import Navbar from "./ui/Navbar";
+import { Printer } from "~/types/Printer";
+import { useEffect } from "react";
 
 const data = [
 	{
@@ -21,13 +24,24 @@ const data = [
 		client: 2,
 		filamentQuantity: 113,
 		timeToPrint: 345, // in minutes
-		margin: 22.5, // percentage to add to total
 		usedUpgrades: [66, 67],
 		usedConsumables: [63, 64, 65],
 	},
 ];
 
-export default function Invoices() {
+export default function Prints({
+	Filaments,
+	Printers,
+}: {
+	Filaments: Filament[];
+	Printers: Printer[];
+}) {
+
+	useEffect(() =>
+	{
+		console.log(Printers);
+		console.log(Filaments);
+	})
 	return (
 		<>
 			<Navbar />

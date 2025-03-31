@@ -1,6 +1,5 @@
 import { NavElement } from "./types";
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
-import { UsersIcon } from "@heroicons/react/20/solid";
 import {
 	BoltIcon,
 	ChevronDownIcon,
@@ -11,6 +10,8 @@ import {
 	PrinterIcon,
 	StopCircleIcon,
 	WrenchScrewdriverIcon,
+	UsersIcon,
+	CubeTransparentIcon,
 } from "@heroicons/react/20/solid";
 import { Link } from "@remix-run/react";
 
@@ -21,6 +22,11 @@ const navElements: NavElement[] = [
 		name: "Filaments",
 		href: "/Filaments",
 		icon: <StopCircleIcon height={30} />,
+	},
+	{
+		name: "Prints",
+		href: "/Prints",
+		icon: <CubeTransparentIcon height={30} />,
 	},
 	{
 		name: "Invoices",
@@ -84,26 +90,23 @@ function Navbar() {
 									 [data-[closed]:-translate-y-1 data-[closed]:opacity-0
 									 "
 								>
-									{element.children.map((childElement, childIndex) => {
-										console.log(childElement);
-										return (
-											<Link
-												prefetch="intent"
-												key={`child-element-${childIndex}`}
-												to={`${element.href + "/" + childElement.href}`}
-												className="rounded-lg py-2 px-5 transition hover:bg-white/5 w-full block font-medium"
-											>
-												<div className="flex flex-row gap-2">
-													<span>{childElement.icon}</span>
-													<span>{childElement.name}</span>
-												</div>
-											</Link>
-										);
-									})}
+									{element.children.map((childElement, childIndex) => (
+										<Link
+											prefetch="intent"
+											key={`child-element-${childIndex}`}
+											to={`${element.href + "/" + childElement.href}`}
+											className="rounded-lg py-2 px-5 transition hover:bg-white/5 w-full block font-medium"
+										>
+											<div className="flex flex-row gap-2">
+												<span>{childElement.icon}</span>
+												<span>{childElement.name}</span>
+											</div>
+										</Link>
+									))}
 								</PopoverPanel>
 							</Popover>
 						) : (
-							<Link key={index} to={`${element.href}`}>
+							<Link key={index} to={`${element.href}`} prefetch="intent">
 								<span className="hidden md:block">{element.name}</span>
 								<span className="block md:hidden">{element.icon}</span>
 							</Link>

@@ -3,15 +3,14 @@ import Invoices from "~/Components/Invoices";
 
 export const meta: MetaFunction = () => {
 	return [
-		{ title: "Coucou" },
-		{ name: "description", content: "Welcome to the jungle!" },
+		{ title: "Invoices" },
+		{ name: "Invoices", content: "List of invoices" },
 	];
 };
 
-export default function Index() {
+export default function InvoicessPage() {
 	return (
 		<>
-			{/* <Mainpage /> */}
 			<Invoices />
 		</>
 	);

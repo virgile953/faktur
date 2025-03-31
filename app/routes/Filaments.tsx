@@ -12,8 +12,8 @@ import { Filament } from "~/types/Filament";
 
 export const meta: MetaFunction = () => {
 	return [
-		{ title: "Coucou" },
-		{ name: "description", content: "Welcome to the jungle!" },
+		{ title: "Filaments" },
+		{ name: "Filaments", content: "List of configured filaments" },
 	];
 };
 
