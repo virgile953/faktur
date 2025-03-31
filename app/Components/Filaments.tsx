@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import Navbar from "./ui/Navbar";
+import FilamentsList from "./filamentsPage/FilamentsList";
+import FilamentDetails from "./filamentsPage/FilamentDetails";
+import { Filament } from "~/types/Filament";
 
-const data = [
+const data: Filament[] = [
 	{
 		image:
 			"https://eu.store.bambulab.com/cdn/shop/files/JP34951_dfb10fec-368d-47a7-8bd8-bb506498a9bd_600x.jpg?v=1705040347",
@@ -49,8 +52,22 @@ const data = [
 	},
 ];
 
+const NewFilament: Filament = {
+	id: undefined,
+	brand: "",
+	color: "",
+	description: "",
+	image: "",
+	material: "",
+	name: "",
+	price: 0,
+	quantity: 0,
+	unit: "",
+};
+
 function Filaments() {
 	const [selectedFilament, setSelectedFilament] = useState(data[0]);
+	const [newFilament, setNewFilament] = useState(NewFilament);
 
 	useEffect(() => {
 		console.log(selectedFilament);
@@ -59,56 +76,122 @@ function Filaments() {
 	return (
 		<>
 			<Navbar />
-			<div className="mt-[130px] h-[calc(100vh-130px)] max-w-7xl mx-auto">
+			<div className="mt-[130px] h-[calc(100vh-130px)] ">
 				{/* Affichage des filaments */}
-				<div className="flex flex-row gap-0 overflow-x-auto relative w-full mx-5">
-					{data.map((filament, index) => (
-						<div
-							key={index}
-							className={`flex flex-row m-2 min-w-72 border border-gray-700 
-							rounded-xl relative cursor-pointer
-							${selectedFilament == filament ? "bg-gray-900" : ""}`}
-							onClick={() => setSelectedFilament(data[index])}
-						>
-							<img
-								src={filament.image}
-								className="h-24 w-24 rounded-s-xl"
-								alt={filament.name}
+				<FilamentsList
+					data={data}
+					selectedFilament={selectedFilament}
+					setSelectedFilament={setSelectedFilament}
+				/>
+				{/* Affichage des infos du filament */}
+				<FilamentDetails selectedFilament={selectedFilament} />
+				{/* Create or update a filament */}
+				<div className="grid grid-cols-3 border border-red-700 rounded-lg max-w-7xl mx-auto p-2 ">
+					<div className="col-span-2">
+						<h1 className="text-xl mb-4">
+							{newFilament.id == undefined ? "Add" : "Update"} a filament
+						</h1>
+						<label className="flex flex-col gap-1 mb-2">
+							Filament name
+							<input
+								className="bg-gray-900 rounded-lg pl-2 p-1"
+								value={newFilament.name || ""}
+								onChange={(e) =>
+									setNewFilament({ ...newFilament, name: e.target.value })
+								}
 							/>
-							<div className="flex flex-col p-2 text-sm justify-between relative w-full overflow-hidden">
-								<div className="absolute top-0 right-0 text-xs font-bold px-2 py-1 border-l border-b border-gray-700 rounded-bl">
-									{filament.price + " €"}
-								</div>
-								<div className="flex flex-col">
-									<div>{filament.brand}</div>
-									<div>{filament.material}</div>
-									<div>{filament.name}</div>
-								</div>
-								<div className="text-xs">{"coucou" + " Options"}</div>
-							</div>
-						</div>
-					))}
-				</div>
-				{/* Affichage des infos de l'imprimante */}
-				<div className="grid grid-cols-3 justify-between m-4 rounded-xl border border-gray-700">
-					{/* Printer details */}
-					<div className="w-full p-2 col-span-2">
-						<div className="flex flex-row justify-between mr-2">
-							<div>{selectedFilament.name}</div>
-							<div>{selectedFilament.price + " €"}</div>
-						</div>
-						<ul className="p-2 text-xs">
-							<h1 className="text-base text-justify">Description:</h1>
-							{selectedFilament.description}
-						</ul>
+						</label>
+						<label className="flex flex-col gap-1 mb-2">
+							Filament brand
+							<input
+								className="bg-gray-900 rounded-lg pl-2 p-1"
+								value={newFilament.brand || ""}
+								onChange={(e) =>
+									setNewFilament({ ...newFilament, brand: e.target.value })
+								}
+							/>
+						</label>
+						<label className="flex flex-col gap-1 mb-2">
+							Filament color
+							<input
+								className="bg-gray-900 rounded-lg pl-2 p-1"
+								value={newFilament.color || ""}
+								onChange={(e) =>
+									setNewFilament({ ...newFilament, color: e.target.value })
+								}
+							/>
+						</label>
+						<label className="flex flex-col gap-1 mb-2">
+							Filament description
+							<input
+								className="bg-gray-900 rounded-lg pl-2 p-1"
+								value={newFilament.description || ""}
+								onChange={(e) =>
+									setNewFilament({
+										...newFilament,
+										description: e.target.value,
+									})
+								}
+							/>
+						</label>
+						<label className="flex flex-col gap-1 mb-2">
+							Filament material
+							<input
+								className="bg-gray-900 rounded-lg pl-2 p-1"
+								value={newFilament.material || ""}
+								onChange={(e) =>
+									setNewFilament({ ...newFilament, material: e.target.value })
+								}
+							/>
+						</label>
+						<label className="flex flex-col gap-1 mb-2">
+							Filament quantity
+							<input
+								className="bg-gray-900 rounded-lg pl-2 p-1"
+								value={newFilament.quantity || ""}
+								onChange={(e) =>
+									setNewFilament({
+										...newFilament,
+										quantity: Number(e.target.value),
+									})
+								}
+							/>
+						</label>
+						<label className="flex flex-col gap-1 mb-2">
+							Filament unit
+							<input
+								className="bg-gray-900 rounded-lg pl-2 p-1"
+								value={newFilament.unit || ""}
+								onChange={(e) =>
+									setNewFilament({ ...newFilament, unit: e.target.value })
+								}
+							/>
+						</label>
 					</div>
-					{/* Printer image */}
-					<img
-						src={selectedFilament.image}
-						alt={selectedFilament.name}
-						className="h-full w-full rounded-r-xl object-cover col-span-1"
-					/>
+					{/* Image preview */}
+					<div className="justify-self-end w-full h-full">
+						{newFilament.image ? (
+							<img
+								src={newFilament.image}
+								alt="Printer preview"
+								className="h-full w-full rounded-r-xl object-cover border border-gray-700"
+							/>
+						) : (
+							<div className="h-full w-full rounded-r-xl border border-gray-700 flex items-center justify-center text-gray-500">
+								Filament image preview
+							</div>
+						)}
+					</div>
 				</div>
+				coucou coucou
+				<br />
+				coucou
+				<br />
+				coucou
+				<br />
+				coucou
+				<br />
+				coucou
 			</div>
 		</>
 	);

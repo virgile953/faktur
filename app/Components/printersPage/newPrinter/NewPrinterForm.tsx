@@ -35,7 +35,7 @@ export default function NewPrinterForm({
 }: NewPrinterFormProps) {
 	return (
 		<div className="max-w-7xl mx-auto justify-between m-4 min-h-max rounded-xl border border-gray-700 p-2">
-			<h1 className="mb-2">Ajouter une imprimante</h1>
+			<h1 className="mb-2">{newPrinter.id == undefined ? "Ajouter" : "Modifier"} une imprimante</h1>
 			<TabGroup className="ml-4 border border-gray-700 rounded-lg my-6 p-2 pb-6 ">
 				<TabList className="mb-4">
 					<Tab className="py-2 px-4 data-[selected]:bg-gray-900 rounded-lg">
