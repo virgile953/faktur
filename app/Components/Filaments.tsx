@@ -79,10 +79,13 @@ function Filaments({ initialFilaments }: { initialFilaments: Filament[] }) {
 				/>
 
 				{/* Filament Details */}
-				<FilamentDetails selectedFilament={selectedFilament} />
+				<FilamentDetails
+					selectedFilament={selectedFilament}
+					setNewFilament={setNewFilament}
+				/>
 
 				{/* Create or Update a Filament */}
-				<div className="grid grid-cols-1 md:grid-cols-3 gap-6 border border-red-700 rounded-lg p-4">
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-6 border border-gray-700 rounded-lg p-4">
 					{/* Form Section */}
 					<div className="col-span-2">
 						<h1 className="text-xl mb-4">
