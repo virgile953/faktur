@@ -1,56 +1,9 @@
 import { useEffect, useState } from "react";
+import { useSubmit } from "@remix-run/react";
 import Navbar from "./ui/Navbar";
 import FilamentsList from "./filamentsPage/FilamentsList";
 import FilamentDetails from "./filamentsPage/FilamentDetails";
 import { Filament } from "~/types/Filament";
-
-const data: Filament[] = [
-	{
-		image:
-			"https://eu.store.bambulab.com/cdn/shop/files/JP34951_dfb10fec-368d-47a7-8bd8-bb506498a9bd_600x.jpg?v=1705040347",
-		name: "PETG Translucent",
-		material: "PETG",
-		brand: "Bambu lab",
-		description:
-			"Known for its impact and water resistance, high flexibility and strong adhesion to the coating, Bambu PETG Basic is ideal for printing tools (vices, turnbuckles, bag clips), toys (Frisbees, boomerangs), water containers (bottles, watering cans) and outdoor items (flower pots, bottle cages) that require long-term exposure and are impact resistant.",
-		price: 23.28,
-		quantity: 1000,
-		// hehe titty
-		unit: "gr",
-		color: "bleu",
-	},
-	{
-		image:
-			"https://cdn-3.makershop.fr/11790-thickbox_default/esun-epla-silk.jpg?_gl=1*36l2xu*_gcl_au*MTA5MDYyODIyNi4xNzQzMDkwMjI2",
-		name: "eSun ePLA Silk",
-		material: "PLA",
-		brand: "eSun",
-		description: `Le filament 3D eSun ePLA Silk est une version améliorée du PLA standard, intégrant des matériaux à effet brillant qui donnent une surface de finition brillante et soyeuse. Il conserve les avantages du PLA, avec une bonne propriété mécanique et une haute résistance. Disponible en bobine de 1kg et en diamètre de 1.75 mm.`,
-		price: 19.16,
-		quantity: 1000,
-		unit: "gr",
-		color: "metallic gray",
-	},
-	{
-		image:
-			"https://eu.store.bambulab.com/cdn/shop/files/Mainimage_800x800.png?v=1724636050",
-		name: "Black noir high heat",
-		material: "PPS-CF",
-		brand: "Bambu lab",
-		description: `Product Features
-										- Ultra-High Heat Resistance
-										- Top-tier Flame Retardancy
-										- Peerless Mechanical Properties
-										- Solvent and Chemical Resistance
-										- Ultra-Low Water Absorption
-										- Comes with Cardboard Spool
-										- Diameter: 1.75 mm +/- 0.05 mm`,
-		price: 135.12,
-		quantity: 1000,
-		unit: "gr",
-		color: "black",
-	},
-];
 
 const NewFilament: Filament = {
 	id: undefined,
@@ -62,12 +15,53 @@ const NewFilament: Filament = {
 	name: "",
 	price: 0,
 	quantity: 0,
-	unit: "",
+	unit: "ml",
 };
 
-function Filaments() {
-	const [selectedFilament, setSelectedFilament] = useState(data[0]);
+function Filaments({ initialFilaments }: { initialFilaments: Filament[] }) {
+	const [filaments, setFilaments] = useState(initialFilaments);
+	const [selectedFilament, setSelectedFilament] = useState(initialFilaments[0]);
 	const [newFilament, setNewFilament] = useState(NewFilament);
+
+	const submit = useSubmit();
+
+	function createFilament(): void {
+		if (!newFilament.name || !newFilament.image || newFilament.price <= 0) {
+			console.log("Please fill in all required fields with valid values.");
+			return;
+		}
+
+		submit(
+			{ filamentData: JSON.stringify(newFilament), _action: "create" },
+			{ method: "post", encType: "multipart/form-data" }
+		);
+
+		setFilaments([...filaments, { ...newFilament, id: Date.now() }]);
+		setNewFilament(NewFilament);
+	}
+
+	function updateFilament(): void {
+		if (!newFilament.name || !newFilament.image || newFilament.price <= 0) {
+			console.log("Please fill in all required fields with valid values.");
+			return;
+		}
+
+		submit(
+			{ filamentData: JSON.stringify(newFilament), _action: "update" },
+			{ method: "put", encType: "multipart/form-data" }
+		);
+
+		setNewFilament(NewFilament);
+	}
+
+	function deleteFilament(filamentId: number): void {
+		submit(
+			{ filamentId: String(filamentId), _action: "delete" },
+			{ method: "post", encType: "multipart/form-data" }
+		);
+
+		setFilaments(filaments.filter((filament) => filament.id !== filamentId));
+	}
 
 	useEffect(() => {
 		console.log(selectedFilament);
@@ -76,55 +70,157 @@ function Filaments() {
 	return (
 		<>
 			<Navbar />
-			<div className="mt-[130px] h-[calc(100vh-130px)] ">
-				{/* Affichage des filaments */}
+			<div className="mt-[130px] h-[calc(100vh-130px)] max-w-7xl mx-auto px-4">
+				{/* Filaments List */}
 				<FilamentsList
-					data={data}
+					data={filaments}
 					selectedFilament={selectedFilament}
 					setSelectedFilament={setSelectedFilament}
 				/>
-				{/* Affichage des infos du filament */}
+
+				{/* Filament Details */}
 				<FilamentDetails selectedFilament={selectedFilament} />
-				{/* Create or update a filament */}
-				<div className="grid grid-cols-3 border border-red-700 rounded-lg max-w-7xl mx-auto p-2 ">
+
+				{/* Create or Update a Filament */}
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-6 border border-red-700 rounded-lg p-4">
+					{/* Form Section */}
 					<div className="col-span-2">
 						<h1 className="text-xl mb-4">
-							{newFilament.id == undefined ? "Add" : "Update"} a filament
+							{newFilament.id == undefined ? "Add" : "Update"} a Filament
 						</h1>
-						<label className="flex flex-col gap-1 mb-2">
-							Filament name
-							<input
-								className="bg-gray-900 rounded-lg pl-2 p-1"
-								value={newFilament.name || ""}
-								onChange={(e) =>
-									setNewFilament({ ...newFilament, name: e.target.value })
-								}
+						<div className="grid grid-cols-1 gap-4">
+							<div className="grid grid-cols-10 gap-4">
+								<label className="flex flex-col gap-1 col-span-7">
+									Name
+									<input
+										className="bg-gray-900 rounded-lg pl-2 p-1"
+										value={newFilament.name || ""}
+										onChange={(e) =>
+											setNewFilament({ ...newFilament, name: e.target.value })
+										}
+									/>
+								</label>
+								<label className="flex flex-col gap-1 col-span-3">
+									Price
+									<div className="flex flex-row items-center">
+										<input
+											className="bg-gray-900 rounded-lg pl-2 p-1 w-full"
+											value={newFilament.price || 0}
+											type="number"
+											onChange={(e) =>
+												setNewFilament({
+													...newFilament,
+													price: Number(e.target.value),
+												})
+											}
+										/>
+										<span className="ml-2">€</span>
+									</div>
+								</label>
+							</div>
+							<div className="grid grid-cols-2 gap-4">
+								<label className="flex flex-col gap-1">
+									Brand
+									<input
+										className="bg-gray-900 rounded-lg pl-2 p-1"
+										value={newFilament.brand || ""}
+										onChange={(e) =>
+											setNewFilament({ ...newFilament, brand: e.target.value })
+										}
+									/>
+								</label>
+								<label className="flex flex-col gap-1">
+									Material
+									<input
+										className="bg-gray-900 rounded-lg pl-2 p-1"
+										value={newFilament.material || ""}
+										onChange={(e) =>
+											setNewFilament({
+												...newFilament,
+												material: e.target.value,
+											})
+										}
+									/>
+								</label>
+							</div>
+							<div className="grid grid-cols-2 gap-4">
+								<label className="flex flex-col gap-1">
+									Color
+									<input
+										className="bg-gray-900 rounded-lg pl-2 p-1"
+										value={newFilament.color || ""}
+										onChange={(e) =>
+											setNewFilament({ ...newFilament, color: e.target.value })
+										}
+									/>
+								</label>
+								<label className="flex flex-col gap-1">
+									Image
+									<input
+										className="bg-gray-900 rounded-lg pl-2 p-1"
+										value={newFilament.image || ""}
+										onChange={(e) =>
+											setNewFilament({ ...newFilament, image: e.target.value })
+										}
+									/>
+								</label>
+							</div>
+
+							<div className="grid grid-cols-5 gap-4">
+								<label className="flex flex-col gap-1 col-span-3">
+									Quantity
+									<div className="w-full flex  flex-row">
+										<input
+											className="bg-gray-900 rounded-lg pl-2 p-1 w-full"
+											type="number"
+											value={newFilament.quantity || ""}
+											onChange={(e) =>
+												setNewFilament({
+													...newFilament,
+													quantity: Number(e.target.value),
+												})
+											}
+										/>
+										<span className="-ml-10 mt-1">{newFilament.unit}</span>
+									</div>
+								</label>
+								<label className="flex flex-col gap-1 col-span-2">
+									Unit
+									<select
+										className="bg-gray-900 rounded-lg pl-2 p-1"
+										value={newFilament.unit}
+										onChange={(e) =>
+											setNewFilament({
+												...newFilament,
+												unit: e.target.value,
+											})
+										}
+									>
+										<option value={"g"}>grams</option>
+										<option value={"ml"}>milliliters</option>
+									</select>
+								</label>
+							</div>
+						</div>
+					</div>
+
+					{/* Image Preview Section */}
+					<div className="flex flex-col items-center justify-center">
+						{newFilament.image ? (
+							<img
+								src={newFilament.image}
+								alt="Filament preview"
+								className="h-64 w-full rounded-lg object-cover border border-gray-700"
 							/>
-						</label>
-						<label className="flex flex-col gap-1 mb-2">
-							Filament brand
-							<input
-								className="bg-gray-900 rounded-lg pl-2 p-1"
-								value={newFilament.brand || ""}
-								onChange={(e) =>
-									setNewFilament({ ...newFilament, brand: e.target.value })
-								}
-							/>
-						</label>
-						<label className="flex flex-col gap-1 mb-2">
-							Filament color
-							<input
-								className="bg-gray-900 rounded-lg pl-2 p-1"
-								value={newFilament.color || ""}
-								onChange={(e) =>
-									setNewFilament({ ...newFilament, color: e.target.value })
-								}
-							/>
-						</label>
-						<label className="flex flex-col gap-1 mb-2">
-							Filament description
-							<input
-								className="bg-gray-900 rounded-lg pl-2 p-1"
+						) : (
+							<div className="h-64 w-full rounded-lg border border-gray-700 flex items-center justify-center text-gray-500">
+								Filament image preview
+							</div>
+						)}
+						<label className="flex flex-col gap-1 w-full">
+							Description
+							<textarea
+								className="bg-gray-900 min-h-32 rounded-lg pl-2 p-1 resize-none"
 								value={newFilament.description || ""}
 								onChange={(e) =>
 									setNewFilament({
@@ -134,64 +230,22 @@ function Filaments() {
 								}
 							/>
 						</label>
-						<label className="flex flex-col gap-1 mb-2">
-							Filament material
-							<input
-								className="bg-gray-900 rounded-lg pl-2 p-1"
-								value={newFilament.material || ""}
-								onChange={(e) =>
-									setNewFilament({ ...newFilament, material: e.target.value })
-								}
-							/>
-						</label>
-						<label className="flex flex-col gap-1 mb-2">
-							Filament quantity
-							<input
-								className="bg-gray-900 rounded-lg pl-2 p-1"
-								value={newFilament.quantity || ""}
-								onChange={(e) =>
-									setNewFilament({
-										...newFilament,
-										quantity: Number(e.target.value),
-									})
-								}
-							/>
-						</label>
-						<label className="flex flex-col gap-1 mb-2">
-							Filament unit
-							<input
-								className="bg-gray-900 rounded-lg pl-2 p-1"
-								value={newFilament.unit || ""}
-								onChange={(e) =>
-									setNewFilament({ ...newFilament, unit: e.target.value })
-								}
-							/>
-						</label>
 					</div>
-					{/* Image preview */}
-					<div className="justify-self-end w-full h-full">
-						{newFilament.image ? (
-							<img
-								src={newFilament.image}
-								alt="Printer preview"
-								className="h-full w-full rounded-r-xl object-cover border border-gray-700"
-							/>
-						) : (
-							<div className="h-full w-full rounded-r-xl border border-gray-700 flex items-center justify-center text-gray-500">
-								Filament image preview
-							</div>
-						)}
-					</div>
+					<button
+						className="max-w-24 p-2  bg-gray-900 rounded-lg border border-gray-700"
+						onClick={() =>
+							newFilament.id == undefined ? createFilament() : updateFilament()
+						}
+					>
+						{newFilament.id == undefined ? "Add" : "Update"}
+					</button>
 				</div>
-				coucou coucou
 				<br />
-				coucou
 				<br />
-				coucou
 				<br />
-				coucou
 				<br />
-				coucou
+				<br />
+				<br />
 			</div>
 		</>
 	);

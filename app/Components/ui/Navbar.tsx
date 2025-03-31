@@ -55,7 +55,7 @@ function Navbar() {
 		<div className="App">
 			<header
 				className="flex max-w-fit fixed top-10 inset-x-0 mx-auto border border-dark-700 rounded-lg bg-dark-200
-			 z-[5000] px-8 py-4 items-center justify-center divide-double divide-x"
+			 z-[5000] px-8 py-4 items-center justify-center divide-double divide-x bg-gray-900"
 			>
 				{navElements.map((element, index) => (
 					<div key={`nav-element-${index}`} className="pl-4 pr-4">
@@ -63,12 +63,8 @@ function Navbar() {
 						{element.children ? (
 							<Popover className="group">
 								<PopoverButton className="flex flex-row items-center gap-1">
-									<span className="hidden md:block">
-												{element.name}
-											</span>
-											<span className="block md:hidden">
-												{element.icon}
-											</span>
+									<span className="hidden md:block">{element.name}</span>
+									<span className="block md:hidden">{element.icon}</span>
 									<ChevronDownIcon
 										className="align-bottom size-5 group-data-[open]:-rotate-180
 									transition duration-100"
@@ -85,7 +81,7 @@ function Navbar() {
 								>
 									{element.children.map((childElement, childIndex) => (
 										<Link
-										prefetch="intent"
+											prefetch="intent"
 											key={`child-element-${childIndex}`}
 											to={`${element.href + "/" + childElement.href}`}
 											className="rounded-lg py-2 px-5 transition hover:bg-white/5 w-full hidden sm:block font-medium"
@@ -101,13 +97,9 @@ function Navbar() {
 								</PopoverPanel>
 							</Popover>
 						) : (
-							<Link key={index}  to={`${element.href}`}>
-								<span className="hidden md:block">
-									{element.name}
-								</span>
-								<span className="block md:hidden">
-									{element.icon}
-								</span>
+							<Link key={index} to={`${element.href}`}>
+								<span className="hidden md:block">{element.name}</span>
+								<span className="block md:hidden">{element.icon}</span>
 							</Link>
 						)}
 					</div>

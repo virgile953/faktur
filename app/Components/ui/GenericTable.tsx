@@ -14,16 +14,22 @@ export default function GenericTable<T>({
 	showRemoveButton = true,
 }: GenericTableProps<T>) {
 	return (
-		<table className="table-auto rounded-lg w-full">
+		<table className="min-w-full rounded-lg border-separate border border-gray-700 table-auto ">
 			<thead>
 				<tr className="bg-gray-900">
 					{headers.map((header, idx) => (
-						<th key={idx} className="border px-4 py-2 text-left">
+						<th
+							key={idx}
+							className={`${idx == 0 ? "rounded-tl-lg" : ""}
+							px-4 py-2 text-left`}
+						>
 							{header.label}
 						</th>
 					))}
 					{showRemoveButton && removeElement && (
-						<th className="border px-4 text-center w-24">Remove</th>
+						<th className="border-none rounded-tr-lg px-4 text-center w-24">
+							Remove
+						</th>
 					)}
 				</tr>
 			</thead>
@@ -31,17 +37,20 @@ export default function GenericTable<T>({
 				{data.map((item, index) => (
 					<tr
 						key={index}
-						className={`border hover:bg-gray-800 ${
+						className={`border-none hover:bg-gray-800 ${
 							index % 2 ? "bg-gray-900/50" : ""
 						}`}
 					>
 						{headers.map((header, idx) => (
-							<td key={idx} className="border py-1 px-2 max-w-lg overflow-x-clip text-ellipsis">
+							<td
+								key={idx}
+								className="border-none py-1 px-2 max-w-lg overflow-x-clip text-ellipsis"
+							>
 								{String(item[header.key])}
 							</td>
 						))}
 						{showRemoveButton && removeElement && (
-							<td className="border py-1 px-2 text-center">
+							<td className="border-none py-1 px-2 text-center">
 								<button
 									className="bg-red-900 text-white px-2 py-0.5 rounded"
 									onClick={() => removeElement(item)}

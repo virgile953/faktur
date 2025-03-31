@@ -7,9 +7,12 @@ interface FilamentDetailsProps {
 export default function FilamentDetails({
 	selectedFilament,
 }: FilamentDetailsProps) {
+	if (!selectedFilament)
+			return <div>coucou</div>
 	return (
 		<div className="grid grid-cols-3 justify-between m-4 rounded-xl border border-gray-700 max-w-7xl mx-auto">
 			{/* Filament details */}
+			
 			<div className="w-full p-2 col-span-2">
 				<div className="flex flex-row justify-between mr-2">
 					<div>{selectedFilament.name}</div>
