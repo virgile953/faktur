@@ -1,5 +1,6 @@
 import { NavElement } from "./types";
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
+import { UsersIcon } from "@heroicons/react/20/solid";
 import {
 	BoltIcon,
 	ChevronDownIcon,
@@ -28,23 +29,28 @@ const navElements: NavElement[] = [
 	},
 	{
 		name: "Config",
-		href: "/Config",
+		href: "",
 		icon: <WrenchScrewdriverIcon height={30} />,
 		children: [
 			{
 				name: "Settings",
 				href: "Settings",
-				icon: <Cog6ToothIcon height={30} />,
+				icon: <Cog6ToothIcon height={22} />,
+			},
+			{
+				name: "People",
+				href: "Contacts",
+				icon: <UsersIcon height={22} />,
 			},
 			{
 				name: "Electricity",
 				href: "Electricity",
-				icon: <BoltIcon height={30} />,
+				icon: <BoltIcon height={22} />,
 			},
 			{
 				name: "About",
 				href: "About",
-				icon: <InformationCircleIcon height={30} />,
+				icon: <InformationCircleIcon height={22} />,
 			},
 		],
 	},
@@ -52,14 +58,13 @@ const navElements: NavElement[] = [
 
 function Navbar() {
 	return (
-		<div className="App">
+		<div className="App z-[5000]">
 			<header
 				className="flex max-w-fit fixed top-10 inset-x-0 mx-auto border border-dark-700 rounded-lg bg-dark-200
 			 z-[5000] px-8 py-4 items-center justify-center divide-double divide-x bg-gray-900"
 			>
 				{navElements.map((element, index) => (
 					<div key={`nav-element-${index}`} className="pl-4 pr-4">
-						{" "}
 						{element.children ? (
 							<Popover className="group">
 								<PopoverButton className="flex flex-row items-center gap-1">
@@ -76,24 +81,25 @@ function Navbar() {
 									anchor="bottom"
 									className="mt-4 divide-y divide-white/5 rounded-xl bg-black/80
 									 text-sm/6 transition duration-200 ease-in-out 
-									 [ data-[closed]:-translate-y-1 data-[closed]:opacity-0
+									 [data-[closed]:-translate-y-1 data-[closed]:opacity-0
 									 "
 								>
-									{element.children.map((childElement, childIndex) => (
-										<Link
-											prefetch="intent"
-											key={`child-element-${childIndex}`}
-											to={`${element.href + "/" + childElement.href}`}
-											className="rounded-lg py-2 px-5 transition hover:bg-white/5 w-full hidden sm:block font-medium"
-										>
-											<span className="hidden sm:block">
-												{childElement.name}
-											</span>
-											<span className="block sm:hidden">
-												{childElement.icon}
-											</span>
-										</Link>
-									))}
+									{element.children.map((childElement, childIndex) => {
+										console.log(childElement);
+										return (
+											<Link
+												prefetch="intent"
+												key={`child-element-${childIndex}`}
+												to={`${element.href + "/" + childElement.href}`}
+												className="rounded-lg py-2 px-5 transition hover:bg-white/5 w-full block font-medium"
+											>
+												<div className="flex flex-row gap-2">
+													<span>{childElement.icon}</span>
+													<span>{childElement.name}</span>
+												</div>
+											</Link>
+										);
+									})}
 								</PopoverPanel>
 							</Popover>
 						) : (
