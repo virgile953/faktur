@@ -36,7 +36,7 @@ export default function GenericTable<T>({
 						}`}
 					>
 						{headers.map((header, idx) => (
-							<td key={idx} className="border py-1 px-2">
+							<td key={idx} className="border py-1 px-2 max-w-lg overflow-x-clip text-ellipsis">
 								{String(item[header.key])}
 							</td>
 						))}

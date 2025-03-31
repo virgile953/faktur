@@ -1,8 +1,5 @@
 import { useEffect, useState } from "react";
 import Navbar from "./ui/Navbar";
-import { Description } from "@headlessui/react";
-
-<div className="relative group"></div>;
 
 const data = [
 	{
@@ -14,7 +11,8 @@ const data = [
 		description:
 			"Known for its impact and water resistance, high flexibility and strong adhesion to the coating, Bambu PETG Basic is ideal for printing tools (vices, turnbuckles, bag clips), toys (Frisbees, boomerangs), water containers (bottles, watering cans) and outdoor items (flower pots, bottle cages) that require long-term exposure and are impact resistant.",
 		price: 23.28,
-		quantity: 1000, // hehe titty
+		quantity: 1000,
+		// hehe titty
 		unit: "gr",
 		color: "bleu",
 	},
@@ -61,8 +59,8 @@ function Filaments() {
 	return (
 		<>
 			<Navbar />
-			<div className="mt-[130px] h-[calc(100vh-130px)]">
-				{/* Affichage des imprimantes */}
+			<div className="mt-[130px] h-[calc(100vh-130px)] max-w-7xl mx-auto">
+				{/* Affichage des filaments */}
 				<div className="flex flex-row gap-0 overflow-x-auto relative w-full mx-5">
 					{data.map((filament, index) => (
 						<div

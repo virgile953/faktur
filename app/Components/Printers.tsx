@@ -36,7 +36,6 @@ function Printers({ initialPrinters }: { initialPrinters: Printer[] }) {
 	const [newUpgrade, setNewUpgrade] = useState(NewUpgrade);
 
 	const submit = useSubmit();
-
 	function newPrinterAddConsumable(): void {
 		const updatedConsumables = [...newPrinter.consumables];
 		console.log(newPrinter.consumables);
@@ -53,6 +52,7 @@ function Printers({ initialPrinters }: { initialPrinters: Printer[] }) {
 			const isSameConsumable =
 				elem.name === consumable.name &&
 				elem.lifeTime === consumable.lifeTime &&
+				elem.price === consumable.price &&
 				elem.usedTime === consumable.usedTime;
 			return !isSameConsumable;
 		});
@@ -97,13 +97,27 @@ function Printers({ initialPrinters }: { initialPrinters: Printer[] }) {
 
 		// Submit to the server
 		submit(
-			{ printerData: JSON.stringify(newPrinter) },
+			{ printerData: JSON.stringify(newPrinter), _action: "create" },
 			{ method: "post", encType: "multipart/form-data" }
 		);
 
 		// Add to local state (you might want to replace this with a redirect or refetch)
 		setPrinters([...printers, { ...newPrinter, id: Date.now() }]);
 		setNewPrinter(NewPrinter);
+	}
+
+	function updatePrinter(): void {
+		if (!newPrinter.name || !newPrinter.image || newPrinter.price <= 0) {
+			console.log("Please fill in all required fields with valid values.");
+			return;
+		}
+		submit(
+			{ printerData: JSON.stringify(newPrinter), _action: "update" },
+			{ method: "put", encType: "multipart/form-data" }
+		);
+
+		setNewPrinter(NewPrinter);
+		setTimeout(() => window.location.reload(), 10); // To ensure the data is actually written to the db before reloadingssssssss
 	}
 
 	return (
@@ -117,7 +131,10 @@ function Printers({ initialPrinters }: { initialPrinters: Printer[] }) {
 					onSelectPrinter={(printer) => setSelectedPrinter(printer)}
 				/>
 				{/* Affichage des infos de l'imprimante */}
-				<PrinterDetails selectedPrinter={selectedPrinter} />
+				<PrinterDetails
+					selectedPrinter={selectedPrinter}
+					setNewPrinter={setNewPrinter}
+				/>
 
 				{/* Ajout imprimante */}
 				<NewPrinterForm
@@ -132,6 +149,7 @@ function Printers({ initialPrinters }: { initialPrinters: Printer[] }) {
 					newPrinterAddUpgrade={newPrinterAddUpgrade}
 					newPrinterRemoveUpgrade={newPrinterRemoveUpgrade}
 					createPrinter={createPrinter}
+					updatePrinter={updatePrinter}
 				/>
 			</div>
 		</>

@@ -1,8 +1,8 @@
 import { Consumable, Printer, Upgrade } from "~/types/Printer";
-import { Form } from "@remix-run/react";
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import GenericTable from "~/Components/ui/GenericTable";
 import NewPrinterBase from "./BaseInfos";
+import { updatePrinter } from "~/db/printers.server";
 
 interface NewPrinterFormProps {
 	newPrinter: Printer;
@@ -16,9 +16,8 @@ interface NewPrinterFormProps {
 	newPrinterAddUpgrade: () => void;
 	newPrinterRemoveUpgrade: (upgrade: Upgrade) => void;
 	createPrinter: () => void;
+	updatePrinter: () => void;
 }
-
-
 
 export default function NewPrinterForm({
 	newPrinter,
@@ -32,6 +31,7 @@ export default function NewPrinterForm({
 	newPrinterAddUpgrade,
 	newPrinterRemoveUpgrade,
 	createPrinter,
+	updatePrinter,
 }: NewPrinterFormProps) {
 	return (
 		<div className="max-w-7xl mx-auto justify-between m-4 min-h-max rounded-xl border border-gray-700 p-2">
@@ -58,7 +58,7 @@ export default function NewPrinterForm({
 					<TabPanel>
 						<div className="flex flex-row gap-4">
 							{newPrinter.consumables.length ? (
-								<div className="w-1/2">
+								<div className="w-full h-full overflow-y-auto max-h-80">
 									<GenericTable
 										data={newPrinter.consumables}
 										headers={[
@@ -131,7 +131,7 @@ export default function NewPrinterForm({
 										<input
 											className="bg-gray-900 rounded-lg pl-2 p-1 w-full text-right"
 											type="number"
-											value={newConsumable.usedTime}
+											value={newConsumable.price}
 											onChange={(e) =>
 												setNewConsumable({
 													...newConsumable,
@@ -154,15 +154,17 @@ export default function NewPrinterForm({
 					<TabPanel>
 						<div className="flex flex-row gap-4">
 							{newPrinter.upgrades.length ? (
-								<GenericTable
-									data={newPrinter.upgrades}
-									headers={[
-										{ key: "name", label: "Name" },
-										{ key: "price", label: "Price" },
-										{ key: "installDate", label: "Date of install" },
-									]}
-									removeElement={newPrinterRemoveUpgrade}
-								/>
+								<div className="w-full max-h-72 overflow-y-auto">
+									<GenericTable
+										data={newPrinter.upgrades}
+										headers={[
+											{ key: "name", label: "Name" },
+											{ key: "price", label: "Price" },
+											{ key: "installDate", label: "Date of install" },
+										]}
+										removeElement={newPrinterRemoveUpgrade}
+									/>
+								</div>
 							) : (
 								<div className="text-center text-3xl w-full">
 									<br />
@@ -230,7 +232,7 @@ export default function NewPrinterForm({
 
 			<button
 				className="bg-gradient-to-t from-gray-900 to-gray-800 m-2 p-2 px-4 rounded-lg border"
-				onClick={createPrinter}
+				onClick={newPrinter.id == undefined ? createPrinter : updatePrinter}
 			>
 				{newPrinter.id == undefined ? "Create " : "Update"}
 			</button>

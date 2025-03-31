@@ -6,7 +6,9 @@ export function getAllPrinters(): Printer[] {
 	const printers = db
 		.prepare(
 			`
-		SELECT * FROM printers ORDER BY name
+		SELECT * FROM printers
+		WHERE archived = 0
+		ORDER BY name
 	`
 		)
 		.all() as Omit<Printer, "upgrades" | "consumables">[];
@@ -77,7 +79,7 @@ export function getPrinterById(id: number): Printer | null {
 }
 
 // Create a new printer with its relationships
-export function createPrinter(printer: Omit<Printer, "id">): Printer {
+export function createPrinter(printer: Printer): Printer {
 	const insertPrinter = db.prepare(`
 		INSERT INTO printers (name, image, price, consumption)
 		VALUES (?, ?, ?, ?)
@@ -195,7 +197,10 @@ export function updatePrinter(printer: Printer): Printer | null {
 
 // Delete a printer (will cascade delete related upgrades and consumables)
 export function deletePrinter(id: number): boolean {
-	const result = db.prepare(`DELETE FROM printers WHERE id = ?`).run(id);
+	// const result = db.prepare(`DELETE FROM printers WHERE id = ?`).run(id);
+	const result = db
+		.prepare(`UPDATE printers SET archived = 1 WHERE id = ?`)
+		.run(id);
 	return result.changes > 0;
 }
 
@@ -241,13 +246,19 @@ export function addConsumableToPrinter(
 
 // Delete an upgrade
 export function deleteUpgrade(id: number): boolean {
-	const result = db.prepare(`DELETE FROM upgrades WHERE id = ?`).run(id);
+	// const result = db.prepare(`DELETE FROM upgrades WHERE id = ?`).run(id);
+	const result = db
+		.prepare(`UPDATE upgrades SET archived = 1 WHERE id = ?`)
+		.run(id);
 	return result.changes > 0;
 }
 
 // Delete a consumable
 export function deleteConsumable(id: number): boolean {
-	const result = db.prepare(`DELETE FROM consumables WHERE id = ?`).run(id);
+	// const result = db.prepare(`DELETE FROM consumables WHERE id = ?`).run(id);
+	const result = db
+		.prepare(`UPDATE consumables SET archived = 1 WHERE id = ?`)
+		.run(id);
 	return result.changes > 0;
 }
 

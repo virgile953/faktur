@@ -1,4 +1,4 @@
-import { Database } from "better-sqlite3";
+import { Database, SqliteError } from "better-sqlite3";
 import sqlite from "better-sqlite3";
 import { Consumable, Printer, Upgrade } from "~/types/Printer";
 
@@ -25,7 +25,8 @@ db.exec(`
 		name TEXT NOT NULL,
 		image TEXT NOT NULL,
 		price REAL NOT NULL,
-		consumption REAL NOT NULL
+		consumption REAL NOT NULL,
+		archived INTEGER NOT NULL DEFAULT 0
 	);
 
 	CREATE TABLE IF NOT EXISTS upgrades (
@@ -34,6 +35,7 @@ db.exec(`
 		price REAL NOT NULL,
 		installDate TEXT NOT NULL,
 		printerId INTEGER NOT NULL,
+		archived INTEGER NOT NULL DEFAULT 0,
 		FOREIGN KEY (printerId) REFERENCES printers(id) ON DELETE CASCADE
 	);
 
@@ -44,9 +46,29 @@ db.exec(`
 		usedTime INTEGER NOT NULL,
 		price REAL NOT NULL,
 		printerId INTEGER NOT NULL,
+		archived INTEGER NOT NULL DEFAULT 0,
 		FOREIGN KEY (printerId) REFERENCES printers(id) ON DELETE CASCADE
 	);
 `);
+
+function addArchivedColumnIfNotExists(tableName: string) {
+	try {
+		db.exec(
+			`ALTER TABLE ${tableName} ADD COLUMN archived INTEGER NOT NULL DEFAULT 0;`
+		);
+	} catch (error: unknown) {
+		if (
+			error instanceof Error &&
+			!error.message.includes("duplicate column name")
+		) {
+			throw error;
+		}
+	}
+}
+
+addArchivedColumnIfNotExists("printers");
+addArchivedColumnIfNotExists("upgrades");
+addArchivedColumnIfNotExists("consumables");
 
 // Seed the database with initial data if it's empty
 const printerCount = db
