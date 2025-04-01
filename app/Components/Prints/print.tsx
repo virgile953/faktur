@@ -11,28 +11,32 @@ export default function Print({
 	Filaments: Filament[];
 	Printer: Printer;
 }) {
+	function convert(n: number): string {
+		if (n < 60) return n.toString();
+		return `0${(n / 60) ^ 0}`.slice(-2) + ":" + ("0" + (n % 60)).slice(-2);
+	}
+
 	return (
 		<>
-			<div className="border border-red-700 rounded-lg min-h-72 h-full grow">
+			<div className="border border-gray-700 rounded-lg min-h-72 h-full grow">
 				{/* Title element */}
-				<div className="flex flex-row justify-between">
+				<div className="flex flex-row justify-between border-b border-gray-700">
 					{/* Image handling */}
 					{Item.image != "" ? (
-						<div className="h-24 w-24 min-h-24 min-w-24">
-							<img
-								className=" cover rounded-tl-lg"
-								src={Item.image}
-							/>
+						<div className="h-32 w-32 min-h-32 min-w-32">
+							<img className=" cover rounded-tl-lg" src={Item.image} />
 						</div>
 					) : (
 						<div
-							className="h-24 w-24 min-h-24 min-w-24 rounded-tl-lg
-						bg-[repeating-linear-gradient(to_bottom_right,#373737D0_0px,#373737D0_20px,#0f0f0fD0_20px,#0f0f0fD0_40px)]"
+							className="h-32 w-32 min-h-32 min-w-32 rounded-tl-lg
+						bg-[repeating-linear-gradient(to_bottom_right,#374151_0px,#374151_20px,#1f2937_20px,#1f2937_40px)]"
 						/>
 					)}
-					<div className="flex flex-col text-end items-end w-fit justify-between">
-						<div className="p-1 text-lg">{Item.date}</div>
-						<div className="p-1 text-xl">{Item.name}</div>
+					<div className="flex flex-col text-end items-end w-fit p-2 justify-between">
+						<div className="px-2 text-3xl font-semibold">{Item.name}</div>
+						<div className="px-1 text-lg">
+							{new Date(Item.date).toLocaleDateString("fr-FR")}
+						</div>
 						{/* <div className="p-1 text-xl">{Item.client}</div> */}
 					</div>
 				</div>
@@ -48,20 +52,21 @@ export default function Print({
 
 					<div className="flex flex-col">
 						{Filaments.map((filament) => (
-							<>
-								<div className="">
-									{Item.filamentQuantity}
-									{filament.unit} {filament.name}
-								</div>
-							</>
+							<div key={filament.id}>
+								{Item.filamentQuantity} {filament.unit} {filament.name} (
+								{filament.material})
+							</div>
 						))}
 					</div>
 				</div>
+				{/* Print time */}
 				<div className="border border-gray-700 rounded-lg w-fit m-2 p-2">
-					{/* Print time */}
 					<div className="flex flex-row gap-2">
-						<img src="/clock.svg" className="h-6 invert" />
-						<div>{Item.timeToPrint}mins</div>
+						<img src="/clock.svg" className="h-6 ml-1 invert" />
+						<div>
+							{Item.timeToPrint}mins{" "}
+							{Item.timeToPrint > 59 && `(${convert(Item.timeToPrint)}h)`}
+						</div>
 					</div>
 				</div>
 			</div>

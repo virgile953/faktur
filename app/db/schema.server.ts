@@ -1,6 +1,7 @@
 import { Database, SqliteError } from "better-sqlite3";
 import sqlite from "better-sqlite3";
 import { Consumable, Printer, Upgrade } from "~/types/Printer";
+import { print } from "~/types/Print";
 
 let db: Database;
 
@@ -61,6 +62,22 @@ db.exec(`
 		quantity INTEGER NOT NULL,
 		unit TEXT NOT NULL,
 		color TEXT NOT NULL,
+		archived INTEGER NOT NULL DEFAULT 0
+	);
+
+	CREATE TABLE IF NOT EXISTS prints (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		name TEXT NOT NULL,
+		date TEXT NOT NULL,
+		printerUsed INTEGER NOT NULL,
+		filamentsUsed TEXT NOT NULL, -- JSON array of filament IDs
+		client INTEGER NOT NULL,
+		filamentQuantity INTEGER NOT NULL,
+		timeToPrint INTEGER NOT NULL,
+		file TEXT NOT NULL,
+		image TEXT NOT NULL,
+		usedUpgrades TEXT NOT NULL, -- JSON array of upgrade IDs
+		usedConsumables TEXT NOT NULL, -- JSON array of consumable IDs
 		archived INTEGER NOT NULL DEFAULT 0
 	);
 `);
@@ -274,6 +291,84 @@ if (printerCount.count === 0) {
 	}
 
 	console.log("Database seeded with initial data");
+}
+
+const printCount = db
+	.prepare("SELECT COUNT(*) as count FROM prints")
+	.get() as { count: number };
+
+if (printCount.count === 0) {
+	const prints: print[] = [
+		{
+			id: 1,
+			name: "Benchy",
+			date: "2025-02-01",
+			printerUsed: 1,
+			filamentsUsed: [2],
+			client: 1,
+			filamentQuantity: 40,
+			image: "/3DBenchy.png",
+			file: "",
+			timeToPrint: 50,
+			usedUpgrades: [66, 67],
+			usedConsumables: [63, 64, 65],
+		},
+		{
+			id: 2,
+			name: "Pikachu",
+			date: "2024-03-05",
+			printerUsed: 2,
+			filamentsUsed: [3, 2, 1],
+			client: 2,
+			filamentQuantity: 113,
+			image: "/plate_1.png",
+			file: "",
+			timeToPrint: 345,
+			usedUpgrades: [66, 67],
+			usedConsumables: [63, 64, 65],
+		},
+		{
+			id: 3,
+			name: "Boeing 747",
+			date: "2024-08-11",
+			printerUsed: 2,
+			filamentsUsed: [3, 2, 1],
+			client: 2,
+			filamentQuantity: 113,
+			image: "/boeing747.png",
+			file: "",
+			timeToPrint: 345,
+			usedUpgrades: [66, 67],
+			usedConsumables: [63, 64, 65],
+		},
+	];
+
+	const insertPrint = db.prepare(`
+		INSERT INTO prints (name, date, printerUsed, filamentsUsed, client, filamentQuantity, timeToPrint, file, image, usedUpgrades, usedConsumables)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	`);
+
+	const insertPrints = db.transaction((print: print) => {
+		insertPrint.run(
+			print.name,
+			print.date,
+			print.printerUsed,
+			JSON.stringify(print.filamentsUsed),
+			print.client,
+			print.filamentQuantity,
+			print.timeToPrint,
+			print.file,
+			print.image,
+			JSON.stringify(print.usedUpgrades),
+			JSON.stringify(print.usedConsumables)
+		);
+	});
+
+	for (const print of prints) {
+		insertPrints(print);
+	}
+
+	console.log("Database seeded with initial prints data");
 }
 
 export { db };

@@ -1,39 +1,52 @@
-import Prints from "~/Components/Prints";
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { MetaFunction, useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import {
-	getAllPrinters,
-	createPrinter,
-	deletePrinter,
-	updatePrinter,
-} from "~/db/printers.server";
-import {
-	getAllFilaments,
-	createFilament,
-	updateFilament,
-	deleteFilament,
-} from "~/db/filaments.server";
-import Printers from "~/Components/Printers";
-import { Printer } from "~/types/Printer";
+	getAllPrints,
+	createPrint,
+	updatePrint,
+	deletePrint,
+} from "~/db/prints.server";
+import Prints from "~/Components/Prints";
+import { print } from "~/types/Print";
+import { getAllPrinters } from "~/db/printers.server";
+import { getAllFilaments } from "~/db/filaments.server";
 
 export async function loader({}: LoaderFunctionArgs) {
+	const prints = getAllPrints();
 	const printers = getAllPrinters();
 	const filaments = getAllFilaments();
-	return { printers, filaments };
+	return { prints, printers, filaments };
 }
 
-export const meta: MetaFunction = () => {
-	return [
-		{ title: "Prints" },
-		{ name: "description", content: "Welcome to the jungle!" },
-	];
-};
+export async function action({ request }: { request: Request }) {
+	const formData = await request.formData();
+	const actionType = formData.get("_action");
+
+	if (actionType === "delete") {
+		const printId = Number(formData.get("printId"));
+		deletePrint(printId);
+		return { success: true };
+	}
+
+	if (actionType === "create") {
+		const printData: print = JSON.parse(formData.get("printData") as string);
+		const newPrint = createPrint(printData);
+		return { success: true, print: newPrint };
+	}
+
+	if (actionType === "update") {
+		const printData: print = JSON.parse(formData.get("printData") as string);
+		const updatedPrint = updatePrint(printData);
+		return { success: true, print: updatedPrint };
+	}
+
+	return { success: false };
+}
 
 export default function PrintsPage() {
-	const { printers, filaments } = useLoaderData<typeof loader>();
+	const { prints, printers, filaments } = useLoaderData<typeof loader>();
+
 	return (
-		<>
-			<Prints Printers={printers} Filaments={filaments}/>
-		</>
+		<Prints initialPrints={prints} Printers={printers} Filaments={filaments} />
 	);
 }
