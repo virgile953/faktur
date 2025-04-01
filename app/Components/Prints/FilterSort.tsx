@@ -38,7 +38,7 @@ export default function FilterSort({
 	}
 
 	return (
-		<Popover className="group min-w-64">
+		<Popover className="group min-w-52">
 			<PopoverButton
 				className="flex flex-row w-full border
 					group-data-[open]:border-b-transparent group-data-[open]:rounded-b-none
@@ -54,7 +54,7 @@ export default function FilterSort({
 						transition duration-100"
 				/>
 			</PopoverButton>
-			
+
 			<PopoverPanel
 				aria-orientation="vertical"
 				transition
@@ -62,7 +62,7 @@ export default function FilterSort({
 				className="divide-y divide-white/5 rounded-b-lg bg-black/95
 					text-sm/6 ease-in-out 
 					[data-[closed]:-translate-y-1 data-[closed]:opacity-0
-					border border-gray-700 w-64"
+					border border-gray-700 w-52"
 			>
 				{({ close }) => (
 					<>
