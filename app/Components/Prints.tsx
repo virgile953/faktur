@@ -5,6 +5,8 @@ import { print } from "~/types/Print";
 import Navbar from "./ui/Navbar";
 import Print from "./Prints/print";
 import Filter from "./Prints/Filter";
+import { Link } from "@remix-run/react";
+import { PlusCircleIcon } from "@heroicons/react/20/solid";
 
 export default function Prints({
 	initialPrints,
@@ -19,7 +21,6 @@ export default function Prints({
 
 	return (
 		<>
-			<Navbar />
 			<div className="mt-[130px] h-[calc(100vh-130px)] max-w-7xl mx-auto px-4">
 				{/* Filter and Sort UI */}
 				<Filter
@@ -52,6 +53,9 @@ export default function Prints({
 				<div className="border border-gray-700 rounded-lg px-4 py-2 mx-4 -my-4 w-fit">
 					{filteredPrints.length} items
 				</div>
+				<Link className="block my-16 mr-10 ml-auto w-fit" to={"new"}>
+					<PlusCircleIcon height={72} color="#4a92ff" />
+				</Link>
 			</div>
 		</>
 	);

@@ -66,7 +66,6 @@ function Filaments({ initialFilaments }: { initialFilaments: Filament[] }) {
 
 	return (
 		<>
-			<Navbar />
 			<div className="mt-[130px] h-[calc(100vh-130px)] max-w-7xl mx-auto">
 				{/* Filaments List */}
 				<FilamentsList

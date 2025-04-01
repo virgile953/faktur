@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { MetaFunction, useLoaderData } from "@remix-run/react";
 import {
 	getAllPrints,
 	createPrint,
@@ -17,6 +17,13 @@ export async function loader({}: LoaderFunctionArgs) {
 	const filaments = getAllFilaments();
 	return { prints, printers, filaments };
 }
+
+export const meta: MetaFunction = () => {
+	return [
+		{ title: "Prints" },
+		{ name: "Prints", content: "List of done prints" },
+	];
+};
 
 export async function action({ request }: { request: Request }) {
 	const formData = await request.formData();

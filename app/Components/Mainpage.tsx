@@ -4,7 +4,6 @@ import Navbar from "./ui/Navbar";
 function Mainpage() {
 	return (
 		<>
-			<Navbar />
 
 			<div
 				className=" mt-[130px] p-4 w-full max-w-7xl mx-auto

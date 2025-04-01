@@ -121,7 +121,6 @@ function Printers({ initialPrinters }: { initialPrinters: Printer[] }) {
 
 	return (
 		<>
-			<Navbar />
 			<div className="mt-[130px] h-[calc(100vh-130px)]">
 				{/* Affichage des imprimantes */}
 				<PrintersList
