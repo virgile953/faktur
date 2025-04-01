@@ -54,8 +54,6 @@ export default function PrintsPage() {
 	const { prints, printers, filaments } = useLoaderData<typeof loader>();
 	const location = useLocation();
 
-	// Only show the Outlet component when we're on a nested route
-	// and hide the parent content
 	const isNestedRoute = location.pathname.toLowerCase() !== "/prints";
 
 	if (isNestedRoute) {

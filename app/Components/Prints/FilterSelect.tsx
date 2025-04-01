@@ -6,11 +6,12 @@ interface FilterSelectProps<T extends { name: string; image: string }> {
 	selectedItem: T | null;
 	setSelectedItem: (item: T | null) => void;
 	label: string; // Label for the filter (e.g., "Printer", "Filament")
+	showAll?: boolean; // Optional prop to show "All" option
 }
 
 export default function FilterSelect<
 	T extends { name: string; image: string }
->({ items, selectedItem, setSelectedItem, label }: FilterSelectProps<T>) {
+>({ items, selectedItem, setSelectedItem, label, showAll= true }: FilterSelectProps<T>) {
 	return (
 		<Popover className="group min-w-64 max-w-64">
 			<PopoverButton
@@ -46,7 +47,7 @@ export default function FilterSelect<
 			>
 				{({ close }) => (
 					<>
-						{selectedItem && (
+						{selectedItem && showAll && (
 							<div
 								key="remove-filter"
 								className="rounded-lg py-2 px-5 transition hover:bg-white/5 w-full block font-medium"
