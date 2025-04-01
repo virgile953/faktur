@@ -1,5 +1,5 @@
 import { Link } from "@remix-run/react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { print } from "~/types/Print";
 import { Printer } from "~/types/Printer";
 import { Filament } from "~/types/Filament";
@@ -8,7 +8,7 @@ import FilterSelect from "../Prints/FilterSelect";
 interface NewPrintFormProps {
 	printers: Printer[];
 	filaments: Filament[];
-	onSubmit: (printData: print) => void;
+	onSubmit: (printData: print, imageFile: File | null, printFile: File | null) => void;
 }
 
 export default function NewPrintForm({
@@ -33,6 +33,60 @@ export default function NewPrintForm({
 	// Track selected filaments
 	const [selectedFilaments, setSelectedFilaments] = useState<number[]>([]);
 
+	// File input references and states
+	const fileInputRef = useRef<HTMLInputElement>(null);
+	const [imageFile, setImageFile] = useState<File | null>(null);
+	const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+	// Print file input references and states
+	const printFileInputRef = useRef<HTMLInputElement>(null);
+	const [printFile, setPrintFile] = useState<File | null>(null);
+
+	// Handle image file selection
+	const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (e.target.files && e.target.files[0]) {
+			const file = e.target.files[0];
+			setImageFile(file);
+
+			// Generate a preview of the selected image
+			const reader = new FileReader();
+			reader.onload = (e) => {
+				if (e.target?.result) {
+					setImagePreview(e.target.result as string);
+				}
+			};
+			reader.readAsDataURL(file);
+
+			// Set the filename in the print object
+			const fileName = `${Date.now()}_${file.name}`;
+			setNewPrint({
+				...newPrint,
+				image: `/prints/imgs/${fileName}`, // This will be the path after saving
+			});
+		}
+	};
+
+	// Handle print file selection
+	const handlePrintFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (e.target.files && e.target.files[0]) {
+			const file = e.target.files[0];
+			setPrintFile(file);
+
+			// Set the filename in the print object
+			const fileName = `${Date.now()}_${file.name}`;
+			setNewPrint({
+				...newPrint,
+				file: `/prints/files/${fileName}`, // This will be the path after saving
+			});
+		}
+	};
+
+	// Handle form submission
+	const handleSubmit = () => {
+		// Call the onSubmit function with both print data, image file, and print file
+		onSubmit(newPrint, imageFile, printFile);
+	};
+
 	// Handle filament selection
 	const handleFilamentSelect = (filamentId: number) => {
 		if (selectedFilaments.includes(filamentId)) {
@@ -55,25 +109,49 @@ export default function NewPrintForm({
 			<h1 className="border border-gray-700 p-2 rounded-lg text-3xl mb-4">
 				Create a New Print
 			</h1>
+			<div className="border border-gray-700 p-6 rounded-lg grid md:grid-cols-[16rem_70%] gap-4">
+				{/* Printer selector */}
+				<label className="flex flex-col gap-1 mb-2">
+					Printer Used
+					<FilterSelect
+						items={printers}
+						selectedItem={
+							printers.find((printer) => printer.id === newPrint.printerUsed) ||
+							null
+						}
+						setSelectedItem={(printer) =>
+							setNewPrint({ ...newPrint, printerUsed: printer!.id! })
+						}
+						showAll={false}
+						label="Printer"
+					/>
+				</label>
 
-			{/* Printer selector */}
-			<label className="flex flex-col gap-1 mb-2">
-				Printer Used
-
-				<FilterSelect
-					items={printers}
-					selectedItem={
-						printers.find((printer) => printer.id === newPrint.printerUsed) ||
-						null
-					}
-					setSelectedItem={(printer) =>
-						setNewPrint({ ...newPrint, printerUsed: printer!.id! })
-					}
-					showAll={false}
-					label="Printer"
-				/>
-			</label>
-
+				{/* Filaments selector */}
+				<div className="">
+					<label className="block mb-2">Filaments Used</label>
+					<div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto rounded-lg">
+						{filaments.map((filament) => (
+							<div
+								key={filament.id}
+								onClick={() => handleFilamentSelect(filament.id!)}
+								className={`rounded-lg cursor-pointer flex items-center gap-4 h-12 w-fit pr-3 border border-gray-700 ${
+									selectedFilaments.includes(filament.id!)
+										? "bg-blue-600"
+										: "bg-gray-800"
+								}`}
+							>
+								<img
+									src={`${filament.image}`}
+									alt={filament.name}
+									className="h-12 w-12 rounded-l-lg"
+								/>
+								{filament.name}
+							</div>
+						))}
+					</div>
+				</div>
+			</div>
 			<div className="border border-gray-700 p-6 rounded-lg grid grid-cols-2 gap-4">
 				{/* Print Name */}
 				<label className="flex flex-col gap-1 mb-2">
@@ -153,78 +231,59 @@ export default function NewPrintForm({
 							}
 							placeholder="0"
 						/>
-						<span className="ml-2">h</span>
+						<span className="ml-2">minutes</span>
 					</div>
 				</label>
-
-				{/* Image URL */}
-				<label className="flex flex-col gap-1 mb-2">
-					Image URL
-					<input
-						className="bg-gray-900 rounded-lg pl-2 p-1"
-						type="text"
-						value={newPrint.image}
-						onChange={(e) =>
-							setNewPrint({ ...newPrint, image: e.target.value })
-						}
-						placeholder="https://example.com/image.jpg"
-					/>
-				</label>
-
-				{/* File URL */}
-				<label className="flex flex-col gap-1 mb-2">
-					File URL
-					<input
-						className="bg-gray-900 rounded-lg pl-2 p-1"
-						type="text"
-						value={newPrint.file}
-						onChange={(e) => setNewPrint({ ...newPrint, file: e.target.value })}
-						placeholder="https://example.com/model.stl"
-					/>
-				</label>
-
-				{/* Filaments selector */}
-				<div className="col-span-2">
-					<label className="block mb-2">Filaments Used</label>
-					<div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto border border-gray-700 rounded-lg">
-						{filaments.map((filament) => (
-							<div
-								key={filament.id}
-								onClick={() => handleFilamentSelect(filament.id!)}
-								className={`rounded cursor-pointer flex items-center gap-2 h-12 ${
-									selectedFilaments.includes(filament.id!)
-										? "bg-blue-600"
-										: "bg-gray-800"
-								}`}
+				<div className="">
+					{/* Image Upload */}
+					<label className="flex flex-col gap-1 mb-2 bg-gray-800 rounded-lg p-2 cursor-pointer">
+						Image
+						<div className="bg-gray-900 rounded-lg pl-2 p-1 flex items-center justify-between">
+							<span className="text-gray-400">
+								{imageFile ? imageFile.name : "Choose a file..."}
+							</span>
+							<button
+								type="button"
+								className="bg-gray-700 px-3 py-1 rounded"
+								onClick={() => fileInputRef.current?.click()}
 							>
-								<img
-									src={`${filament.image}`}
-									alt={filament.name}
-									className="h-12 w-12 rounded-l-lg"
-								/>
-								{filament.name}
-							</div>
-						))}
-					</div>
+								Browse
+							</button>
+						</div>
+						<input
+							ref={fileInputRef}
+							className="hidden"
+							type="file"
+							accept="image/*"
+							onChange={handleImageSelect}
+						/>
+					</label>
+
+						{/* Print File Upload */}
+					<label className="flex flex-col gap-1 mb-2 bg-gray-800 rounded-lg p-2 cursor-pointer">
+						Print File
+						<div className="bg-gray-900 rounded-lg pl-2 p-1 flex items-center justify-between">
+							<span className="text-gray-400">
+								{printFile ? printFile.name : "Choose a file..."}
+							</span>
+							<button
+								type="button"
+								className="bg-gray-700 px-3 py-1 rounded"
+								onClick={() => printFileInputRef.current?.click()}
+							>
+								Browse
+							</button>
+						</div>
+						<input
+							ref={printFileInputRef}
+							className="hidden"
+							type="file"
+							accept=".stl,.obj,.3mf,.gcode"
+							onChange={handlePrintFileSelect}
+						/>
+					</label>
 				</div>
 
-				{/* Image preview */}
-				<div className="col-span-2 mt-4">
-					<label className="block mb-2">Image Preview</label>
-					<div className="h-48 w-full border border-gray-700 rounded-lg overflow-hidden">
-						{newPrint.image ? (
-							<img
-								src={newPrint.image}
-								alt="Print preview"
-								className="h-full w-full object-contain"
-							/>
-						) : (
-							<div className="flex items-center justify-center h-full text-gray-500">
-								No image preview available
-							</div>
-						)}
-					</div>
-				</div>
 			</div>
 
 			{/* Buttons */}
@@ -236,7 +295,7 @@ export default function NewPrintForm({
 				</Link>
 				<button
 					className="bg-gradient-to-t from-gray-900 to-gray-800 border border-gray-700 px-4 py-2 rounded-lg"
-					onClick={() => onSubmit(newPrint)}
+					onClick={handleSubmit}
 				>
 					Create Print
 				</button>

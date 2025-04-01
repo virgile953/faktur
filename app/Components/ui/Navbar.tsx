@@ -44,8 +44,8 @@ const navElements: NavElement[] = [
 				icon: <Cog6ToothIcon height={22} />,
 			},
 			{
-				name: "People",
-				href: "Contacts",
+				name: "Clients",
+				href: "Clients",
 				icon: <UsersIcon height={22} />,
 			},
 			{
@@ -86,7 +86,7 @@ function Navbar() {
 									transition
 									anchor="bottom"
 									className="mt-4 divide-y divide-white/5 rounded-xl bg-black/80
-									 text-sm/6 transition duration-200 ease-in-out 
+									 text-sm/6 transition duration-200 ease-in-out
 									 [data-[closed]:-translate-y-1 data-[closed]:opacity-0
 									 "
 								>
