@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { MetaFunction, useLoaderData } from "@remix-run/react";
+import { MetaFunction, useLoaderData, Outlet, useLocation } from "@remix-run/react";
 import {
 	getAllPrints,
 	createPrint,
@@ -52,8 +52,19 @@ export async function action({ request }: { request: Request }) {
 
 export default function PrintsPage() {
 	const { prints, printers, filaments } = useLoaderData<typeof loader>();
+	const location = useLocation();
+
+	// Only show the Outlet component when we're on a nested route
+	// and hide the parent content
+	const isNestedRoute = location.pathname.toLowerCase() !== "/prints";
+
+	if (isNestedRoute) {
+		return <Outlet />;
+	}
 
 	return (
-		<Prints initialPrints={prints} Printers={printers} Filaments={filaments} />
+		<>
+			<Prints initialPrints={prints} Printers={printers} Filaments={filaments} />
+		</>
 	);
 }

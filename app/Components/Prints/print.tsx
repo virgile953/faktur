@@ -24,7 +24,10 @@ export default function Print({
 					{/* Image handling */}
 					{Item.image != "" ? (
 						<div className="h-32 w-32 min-h-32 min-w-32">
-							<img className=" cover rounded-tl-lg" src={Item.image} />
+							<img
+								className="cover rounded-tl-lg"
+								src={`/prints/imgs/${Item.image.replace("/", "")}`}
+							/>
 						</div>
 					) : (
 						<div

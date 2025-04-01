@@ -57,7 +57,7 @@ export default function Filter({
 	}, [selectedPrinter, selectedFil, selectedRow, sortDir]);
 
 	return (
-		<div className="p-4 rounded-lg flex flex-row gap-4">
+		<div className="p-4 rounded-lg flex flex-row basis-64 flex-wrap gap-4">
 			{/* Printer Filter */}
 			<FilterSelect
 				items={printers}
