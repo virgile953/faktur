@@ -11,13 +11,12 @@ const data: print[] = [
 		name: "Benchy",
 		date: "01/02/2025",
 		printerUsed: 1,
-		filamentUsed: [2],
+		filamentsUsed: [2],
 		client: 1,
 		filamentQuantity: 40,
 		image: "/3DBenchy.png",
 		file: "",
 		timeToPrint: 50, // in minutes
-		margin: 22.5, // percentage to add to total
 		usedUpgrades: [66, 67],
 		usedConsumables: [63, 64, 65],
 	},
@@ -26,10 +25,9 @@ const data: print[] = [
 		name: "pikachu",
 		date: "05/03/2024",
 		printerUsed: 2,
-		filamentUsed: [3],
+		filamentsUsed: [3, 2, 1],
 		client: 2,
 		filamentQuantity: 113,
-		margin: 22.5, // percentage to add to total
 		image: "/plate_1.png",
 		file: "",
 		timeToPrint: 345, // in minutes
@@ -41,10 +39,9 @@ const data: print[] = [
 		name: "Plop",
 		date: "05/03/2024",
 		printerUsed: 2,
-		filamentUsed: [3],
+		filamentsUsed: [3],
 		client: 2,
 		filamentQuantity: 113,
-		margin: 22.5, // percentage to add to total
 		image: "",
 		file: "",
 		timeToPrint: 345, // in minutes
@@ -56,10 +53,9 @@ const data: print[] = [
 		name: "Carapute",
 		date: "05/03/2024",
 		printerUsed: 2,
-		filamentUsed: [3],
+		filamentsUsed: [3],
 		client: 2,
 		filamentQuantity: 113,
-		margin: 22.5, // percentage to add to total
 		image: "",
 		file: "",
 		timeToPrint: 345, // in minutes
@@ -71,10 +67,9 @@ const data: print[] = [
 		name: "Boeing 747",
 		date: "05/03/2024",
 		printerUsed: 2,
-		filamentUsed: [3],
+		filamentsUsed: [3],
 		client: 2,
 		filamentQuantity: 113,
-		margin: 22.5, // percentage to add to total
 		file: "",
 		image: "",
 		timeToPrint: 345, // in minutes
@@ -86,10 +81,9 @@ const data: print[] = [
 		name: "Dell XPS13 pro plus",
 		date: "05/03/2024",
 		printerUsed: 2,
-		filamentUsed: [3],
+		filamentsUsed: [3],
 		client: 2,
 		filamentQuantity: 113,
-		margin: 22.5, // percentage to add to total
 		image: "",
 		file: "",
 		timeToPrint: 345, // in minutes
@@ -106,8 +100,8 @@ export default function Prints({
 	Printers: Printer[];
 }) {
 	useEffect(() => {
-		console.log(Printers);
-		console.log(Filaments);
+		// console.log(Printers);
+		// console.log(Filaments);
 	});
 	return (
 		<>
@@ -120,7 +114,11 @@ export default function Prints({
 							<div key={idx} className="basis-64 grow">
 								<Print
 									Item={coucou}
-									Filaments={Filaments.filter((f) => f.id)}
+									Filaments={Filaments.filter((f) => {
+										return (
+											f?.id !== undefined && coucou.filamentsUsed.includes(f.id)
+										);
+									})}
 									Printer={
 										Printers.filter((p) => (p.id = coucou.printerUsed))[0]
 									}

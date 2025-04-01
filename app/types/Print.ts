@@ -3,11 +3,10 @@ export type print = {
 	name: string;
 	date: string;
 	printerUsed: number;
-	filamentUsed: number[];
+	filamentsUsed: number[];
 	client: number;
 	filamentQuantity: number;
 	timeToPrint: number;
-	margin: number;
 	file: string;
 	image: string;
 	usedUpgrades: number[];
