@@ -38,7 +38,6 @@ function Printers({ initialPrinters }: { initialPrinters: Printer[] }) {
 	const submit = useSubmit();
 	function newPrinterAddConsumable(): void {
 		const updatedConsumables = [...newPrinter.consumables];
-		console.log(newPrinter.consumables);
 		updatedConsumables.push(newConsumable);
 		setNewPrinter({
 			...newPrinter,
