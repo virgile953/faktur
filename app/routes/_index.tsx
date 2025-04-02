@@ -1,7 +1,16 @@
-import type { MetaFunction } from "@remix-run/node";
 import Mainpage from "~/Components/Mainpage";
-import { useLocation } from "@remix-run/react";
-
+import { LoaderFunctionArgs } from "@remix-run/node";
+import {
+	MetaFunction,
+	useLoaderData,
+	Outlet,
+	useLocation,
+} from "@remix-run/react";
+import { getPrintersUsage, getFilamentsUsage } from "~/db/mainpage.server";
+import Prints from "~/Components/Prints";
+import { print } from "~/types/Print";
+import { getAllPrinters } from "~/db/printers.server";
+import { getAllFilaments } from "~/db/filaments.server";
 export const meta: MetaFunction = () => {
 	return [
 		{ title: "Coucou" },
@@ -9,11 +18,17 @@ export const meta: MetaFunction = () => {
 	];
 };
 
+export async function loader({}: LoaderFunctionArgs) {
+	const printersData = getPrintersUsage();
+	const filamentsData = getFilamentsUsage();
+	return { printersData, filamentsData };
+}
 export default function Index() {
+	const { printersData, filamentsData } = useLoaderData<typeof loader>();
+
 	return (
 		<>
-			<Mainpage />
-			{/* <Printers /> */}
+			<Mainpage printersData={printersData} filamentsData={filamentsData} />
 		</>
 	);
 }
