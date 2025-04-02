@@ -62,7 +62,6 @@ export function getFilamentsUsage(): MainPageFilaments[] {
 			filament: getFilamentById(printer.filamentId)!,
 		});
 	});
-	console.log(returnElems);
 	
 	return returnElems;
 }

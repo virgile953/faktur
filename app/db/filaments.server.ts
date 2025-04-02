@@ -88,3 +88,14 @@ export function deleteFilament(id: number): boolean {
 
 	return result.changes > 0;
 }
+
+export function getFilamentMaterials(): string[] {
+	const materials = db
+		.prepare(
+			`
+			SELECT distinct material FROM filaments
+			`
+		)
+		.all() as {material: string}[];
+	return materials.map((material) => material.material);
+}
