@@ -12,7 +12,14 @@ type TableLine = {
 	consoStr: string;
 };
 
-const Data = [
+type InputData = {
+	id: number;
+	printerId: number;
+	filamentMaterial: string;
+	consumtion: number;
+};
+
+let coucou: InputData[] = [
 	{
 		id: 0,
 		printerId: 1,
@@ -41,7 +48,7 @@ export default function ElectricityConfig({
 	printers: Printer[];
 }) {
 	const [tableData, setTableData] = useState<null | TableLine[]>(null);
-
+	const [Data, setData] = useState<InputData[]>(coucou);
 	useEffect(() => {
 		let data: TableLine[] = [];
 		for (let i = 0; i < Data.length; i++) {
@@ -57,7 +64,8 @@ export default function ElectricityConfig({
 		}
 		setTableData(data);
 		console.log(tableData);
-	}, [printers, Data]);
+		console.log(Data);
+	}, [Data]);
 	return (
 		<>
 			<div
@@ -73,7 +81,14 @@ export default function ElectricityConfig({
 								{ key: "filamentMaterial", label: "Material" },
 								{ key: "consoStr", label: "Conso" },
 							]}
-							removeElement={(element) => console.log(element)}
+							removeElement={(element) =>
+								setData(
+									Data.filter((data: InputData) => {
+										console.log();
+										return data.id != element.consoId;
+									})
+								)
+							}
 							showRemoveButton
 						/>
 					)}
