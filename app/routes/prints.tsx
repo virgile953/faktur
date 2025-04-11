@@ -1,5 +1,10 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { MetaFunction, useLoaderData, Outlet, useLocation } from "@remix-run/react";
+import {
+	MetaFunction,
+	useLoaderData,
+	Outlet,
+	useLocation,
+} from "@remix-run/react";
 import {
 	getAllPrints,
 	createPrint,
@@ -10,12 +15,15 @@ import Prints from "~/Components/Prints";
 import { print } from "~/types/Print";
 import { getAllPrinters } from "~/db/printers.server";
 import { getAllFilaments } from "~/db/filaments.server";
+import { getAllConso, getElecPrice } from "~/db/conso.server";
 
 export async function loader({}: LoaderFunctionArgs) {
 	const prints = getAllPrints();
 	const printers = getAllPrinters(true);
 	const filaments = getAllFilaments();
-	return { prints, printers, filaments };
+	const consos = getAllConso();
+	const elecPrice = getElecPrice();
+	return { prints, printers, filaments, consos, elecPrice };
 }
 
 export const meta: MetaFunction = () => {
@@ -51,7 +59,8 @@ export async function action({ request }: { request: Request }) {
 }
 
 export default function PrintsPage() {
-	const { prints, printers, filaments } = useLoaderData<typeof loader>();
+	const { prints, printers, filaments, consos, elecPrice } =
+		useLoaderData<typeof loader>();
 	const location = useLocation();
 
 	const isNestedRoute = location.pathname.toLowerCase() !== "/prints";
@@ -62,7 +71,13 @@ export default function PrintsPage() {
 
 	return (
 		<>
-			<Prints initialPrints={prints} Printers={printers} Filaments={filaments} />
+			<Prints
+				initialPrints={prints}
+				Printers={printers}
+				Filaments={filaments}
+				consos={consos}
+				elecPrice={elecPrice}
+			/>
 		</>
 	);
 }
