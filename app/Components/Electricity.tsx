@@ -38,17 +38,38 @@ export default function ElectricityConfig({
 	filaments,
 	printers,
 	elecPrice,
+	consoData,
 }: {
 	filaments: string[];
 	printers: Printer[];
 	elecPrice: number;
+	consoData: Conso[];
 }) {
 	const [tableData, setTableData] = useState<null | TableLine[]>(null);
-	const [Data, setData] = useState<Conso[]>(coucou);
+	const [Data, setData] = useState<Conso[]>(consoData);
 
 	const [selectedPrinter, setSelectedPrinter] = useState<Printer>(printers[0]);
 	const [selectedFilament, setSelectedFilament] = useState(filaments[0]);
-	const [conso, setConso] = useState(0);
+	const [conso, setConso] = useState(elecPrice);
+
+	async function updateElectricityPrice() {
+		const body = JSON.stringify({ newPrice: conso });
+		const ret = await fetch("/api/electricity", {
+			method: "PATCH",
+			body: body,
+		});
+		const retData: { updated: boolean } = await ret.json();
+		console.log(retData);
+	}
+
+	async function updateData() {
+		const body = JSON.stringify(Data);
+		const ret = await fetch("/api/electricity", {
+			method: "POST",
+			body: body,
+		});
+		console.log(await ret.json());
+	}
 
 	useEffect(() => {
 		let data: TableLine[] = [];
@@ -87,7 +108,7 @@ export default function ElectricityConfig({
 					</label>
 					<button
 						className="px-2 bg-gray-900 rounded-lg w-20 h-[42px] place-self-end border border-gray-700 hover:border-white"
-						onClick={() => {}}
+						onClick={updateElectricityPrice}
 					>
 						Save
 					</button>
@@ -225,6 +246,8 @@ export default function ElectricityConfig({
 								alert("duplicates found");
 								return;
 							}
+							updateData();
+							// alert("" +  updateData());
 						}}
 					>
 						Save

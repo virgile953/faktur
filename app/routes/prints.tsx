@@ -13,7 +13,7 @@ import { getAllFilaments } from "~/db/filaments.server";
 
 export async function loader({}: LoaderFunctionArgs) {
 	const prints = getAllPrints();
-	const printers = getAllPrinters();
+	const printers = getAllPrinters(true);
 	const filaments = getAllFilaments();
 	return { prints, printers, filaments };
 }

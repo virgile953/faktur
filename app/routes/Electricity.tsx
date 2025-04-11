@@ -1,7 +1,7 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import ElectricityConfig from "~/Components/Electricity";
-import { getElecPrice } from "~/db/conso.server";
+import { getAllConso, getElecPrice } from "~/db/conso.server";
 import { getFilamentMaterials } from "~/db/filaments.server";
 import { getAllPrinters } from "~/db/printers.server";
 
@@ -14,14 +14,15 @@ export const meta: MetaFunction = () => {
 
 export async function loader({}: LoaderFunctionArgs) {
 	const materials = getFilamentMaterials();
-	const getDisplayElecData = "coucou";
+	const getDisplayElecData = getAllConso();
 	const printers = getAllPrinters();
 	const electPrice = getElecPrice();
-	return { materials, printers, electPrice };
+	return { materials, printers, electPrice, getDisplayElecData };
 }
 
 export default function Electricity() {
-	const { materials, printers, electPrice } = useLoaderData<typeof loader>();
+	const { materials, printers, electPrice, getDisplayElecData } =
+		useLoaderData<typeof loader>();
 
 	return (
 		<div>
@@ -29,6 +30,7 @@ export default function Electricity() {
 				filaments={materials}
 				printers={printers}
 				elecPrice={electPrice}
+				consoData={getDisplayElecData}
 			/>
 		</div>
 	);

@@ -1,6 +1,7 @@
 import { Filament } from "~/types/Filament";
 import { print } from "../../types/Print";
 import { Printer } from "~/types/Printer";
+import { useEffect } from "react";
 
 export default function Print({
 	Item,
@@ -16,6 +17,7 @@ export default function Print({
 		return `0${(n / 60) ^ 0}`.slice(-2) + ":" + ("0" + (n % 60)).slice(-2);
 	}
 
+	useEffect(() => console.log(Printer));
 	return (
 		<>
 			<div className="border border-gray-700 rounded-lg min-h-72 h-full grow">
@@ -40,13 +42,12 @@ export default function Print({
 						<div className="px-1 text-lg">
 							{new Date(Item.date).toLocaleDateString("fr-FR")}
 						</div>
-						{/* <div className="p-1 text-xl">{Item.client}</div> */}
 					</div>
 				</div>
 				{/* Printer info */}
 				<div className="flex flex-row gap-2 border border-gray-700 rounded-lg w-fit m-2 p-2 ">
 					<img src="/printer.svg" className="h-8 invert"></img>
-					<div>{Printer.name}</div>
+					{Printer && <div>{Printer.name}</div>}
 				</div>
 
 				{/* Filament infos */}
@@ -54,12 +55,13 @@ export default function Print({
 					<img src="/filament.svg" className="h-8 invert"></img>
 
 					<div className="flex flex-col">
-						{Filaments.map((filament) => (
-							<div key={filament.id}>
-								{Item.filamentQuantity} {filament.unit} {filament.name} (
-								{filament.material})
-							</div>
-						))}
+						{Filaments.length > 0 &&
+							Filaments.map((filament) => (
+								<div key={filament.id}>
+									{Item.filamentQuantity} {filament.unit} {filament.name} (
+									{filament.material})
+								</div>
+							))}
 					</div>
 				</div>
 				{/* Print time */}

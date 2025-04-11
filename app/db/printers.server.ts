@@ -2,12 +2,12 @@ import { db } from "./schema.server";
 import { Consumable, Printer, Upgrade } from "~/types/Printer";
 
 // Get all printers with their relationships
-export function getAllPrinters(): Printer[] {
+export function getAllPrinters(withArchived = false): Printer[] {
 	const printers = db
 		.prepare(
 			`
 		SELECT * FROM printers
-		WHERE archived = 0
+		${withArchived == false ? "WHERE archived = 0" : ""}
 		ORDER BY name
 	`
 		)
