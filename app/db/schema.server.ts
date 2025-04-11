@@ -80,6 +80,17 @@ db.exec(`
 		usedConsumables TEXT NOT NULL, -- JSON array of consumable IDs
 		archived INTEGER NOT NULL DEFAULT 0
 	);
+	CREATE TABLE IF NOT EXISTS conso (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		printerId INTEGER NOT NULL,
+		filamentType TEXT NOT NULL,
+		consoKw INTEGER NOT NULL,
+		FOREIGN KEY (printerId) REFERENCES printers(id) ON DELETE CASCADE
+	);
+	CREATE TABLE IF NOT EXISTS config (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		elecPrice REAL NOT NULL
+	);
 `);
 
 function addArchivedColumnIfNotExists(tableName: string) {
