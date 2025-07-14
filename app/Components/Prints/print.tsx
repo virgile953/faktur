@@ -31,21 +31,21 @@ export default function Print({
 			return a + b.consoKw;
 		}, 0);
 		const totalPrice = elecPrice * hToPrint * (totalConso / 1000);
-		console.log(totalPrice);
 		return totalPrice;
 	}
 
 	function calculatePriceFil() {
 		let total: number = 0;
 		Filaments.map((filament, idx) => {
-			const priceForFilament: number = (filament.price / 1000 ) * Item.filamentsQuantity[idx];
+			const priceForFilament: number =
+				(filament.price / 1000) * Item.filamentsQuantity[idx];
 			total += priceForFilament;
 		});
 		//assert that Item.filamentsUsed.length == Filaments.length (i fucked up at the start of development)
 		return total / Item.filamentsUsed.length;
 	}
 
-	useEffect(() => console.log(elecPrice));
+	// useEffect(() => console.log(elecPrice));
 	return (
 		<>
 			<div className="border border-gray-700 rounded-lg min-h-72 h-full grow">
@@ -53,10 +53,10 @@ export default function Print({
 				<div className="flex flex-row justify-between border-b border-gray-700">
 					{/* Image handling */}
 					{Item.image != "" ? (
-						<div className="h-32 w-32 min-h-32 min-w-32">
+						<div className="h-32 w-32 min-h-32 min-w-32 overflow-hidden">
 							<img
-								className="cover rounded-tl-lg"
-								src={`prints/imgs/${Item.image.replace("/", "")}`}
+								className="h-full w-full object-cover rounded-tl-lg"
+								src={`${Item.image.replace("/", "")}`}
 							/>
 						</div>
 					) : (
@@ -84,14 +84,17 @@ export default function Print({
 
 					<div className="flex flex-col">
 						{Filaments.length > 0 &&
-							Filaments.map((filament, idx) => (
-								<div key={filament.id}>
-									{Item.filamentsQuantity[idx]} {filament.unit} {filament.name} (
-									{filament.material})
-								</div>
-							))}
+							Filaments.map((filament, idx) => {
+								return (
+									<div key={filament.id}>
+										{Item.filamentsQuantity[idx]} {filament.unit}{" "}
+										{filament.name} ({filament.material})
+									</div>
+								);
+							})}
 					</div>
 				</div>
+
 				{/* Print time */}
 				<div className="w-fit m-2 p-2">
 					<div className="flex flex-row gap-2">

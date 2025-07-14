@@ -107,6 +107,17 @@ export default function NewPrintForm({
 			});
 		}
 	};
+	const handleQuantityChange = (filamentId: number, quantity: number) => {
+		const index = newPrint.filamentsUsed.indexOf(filamentId);
+		if (index !== -1) {
+			const updatedQuantities = [...newPrint.filamentsQuantity];
+			updatedQuantities[index] = quantity;
+			setNewPrint({
+				...newPrint,
+				filamentsQuantity: updatedQuantities,
+			});
+		}
+	};
 
 	return (
 		<div className="max-w-7xl mx-auto px-4">
@@ -158,11 +169,19 @@ export default function NewPrintForm({
 									<>
 										<input
 											onClick={(e) => e.stopPropagation()}
+											onChange={(e) =>
+												handleQuantityChange(
+													filament.id!,
+													Number(e.target.value)
+												)
+											}
 											min={0}
 											type="number"
 											className="text-gray-400 p-2 rounded-lg w-20"
 										/>
-										<span className="relative -inset-x-12">{filament.unit}</span>
+										<span className="relative -inset-x-12">
+											{filament.unit}
+										</span>
 									</>
 								)}
 							</div>

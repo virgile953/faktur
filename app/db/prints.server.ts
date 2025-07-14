@@ -3,7 +3,7 @@ import { print } from "~/types/Print";
 
 // Get all prints
 export function getAllPrints(): print[] {
-	const prints = db
+	const rawPrints = db
 		.prepare(
 			`
 				SELECT * FROM prints
@@ -11,28 +11,48 @@ export function getAllPrints(): print[] {
 				ORDER BY date DESC
 				`
 		)
-		.all() as print[];
+		.all() as any[];
+
+	// Parse JSON fields back to arrays
+	const prints = rawPrints.map(print => ({
+		...print,
+		filamentsUsed: JSON.parse(print.filamentsUsed),
+		filamentsQuantity: JSON.parse(print.filamentsQuantity),
+		usedUpgrades: JSON.parse(print.usedUpgrades),
+		usedConsumables: JSON.parse(print.usedConsumables)
+	})) as print[];
 
 	return prints;
 }
 
 // Get a single print by ID
 export function getPrintById(id: number): print | null {
-	const print = db
+	const rawPrint = db
 		.prepare(
 			`
 				SELECT * FROM prints WHERE id = ?
 				`
 		)
-		.get(id) as print | undefined;
+		.get(id) as any | undefined;
 
-	return print || null;
+	if (!rawPrint) return null;
+
+	// Parse JSON fields back to arrays
+	const print = {
+		...rawPrint,
+		filamentsUsed: JSON.parse(rawPrint.filamentsUsed),
+		filamentsQuantity: JSON.parse(rawPrint.filamentsQuantity),
+		usedUpgrades: JSON.parse(rawPrint.usedUpgrades),
+		usedConsumables: JSON.parse(rawPrint.usedConsumables)
+	} as print;
+
+	return print;
 }
 
 // Create a new print
 export function createPrint(print: print): print {
 	const insertPrintReq = db.prepare(`
-			INSERT INTO prints (name, date, printerUsed, filamentsUsed, client, filamentQuantity, timeToPrint, file, image, usedUpgrades, usedConsumables)
+			INSERT INTO prints (name, date, printerUsed, filamentsUsed, client, filamentsQuantity, timeToPrint, file, image, usedUpgrades, usedConsumables)
 			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 		`);
 
@@ -62,7 +82,7 @@ export function updatePrint(print: print): print | null {
 
 	const updatePrintReq = db.prepare(`
 		UPDATE prints
-		SET name = ?, date = ?, printerUsed = ?, filamentsUsed = ?, client = ?, filamentQuantity = ?, timeToPrint = ?, file = ?, image = ?, usedUpgrades = ?, usedConsumables = ?
+		SET name = ?, date = ?, printerUsed = ?, filamentsUsed = ?, client = ?, filamentsQuantity = ?, timeToPrint = ?, file = ?, image = ?, usedUpgrades = ?, usedConsumables = ?
 		WHERE id = ?
 		`);
 
