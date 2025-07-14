@@ -8,7 +8,11 @@ import FilterSelect from "../Prints/FilterSelect";
 interface NewPrintFormProps {
 	printers: Printer[];
 	filaments: Filament[];
-	onSubmit: (printData: print, imageFile: File | null, printFile: File | null) => void;
+	onSubmit: (
+		printData: print,
+		imageFile: File | null,
+		printFile: File | null
+	) => void;
 }
 
 export default function NewPrintForm({
@@ -18,13 +22,13 @@ export default function NewPrintForm({
 }: NewPrintFormProps) {
 	const [newPrint, setNewPrint] = useState<print>({
 		name: "",
-		date: new Date().toLocaleDateString("fr-FR"),
+		date: new Date(),
 		client: 0,
 		printerUsed: 0,
 		filamentsUsed: [],
 		timeToPrint: 0,
 		image: "",
-		filamentQuantity: 0,
+		filamentsQuantity: [0],
 		file: "",
 		usedUpgrades: [],
 		usedConsumables: [],
@@ -147,6 +151,20 @@ export default function NewPrintForm({
 									className="h-12 w-12 rounded-l-lg"
 								/>
 								{filament.name}
+								<div className="ml-auto text-gray-400 text-sm">
+									{filament.material}
+								</div>
+								{selectedFilaments.includes(filament.id!) && (
+									<>
+										<input
+											onClick={(e) => e.stopPropagation()}
+											min={0}
+											type="number"
+											className="text-gray-400 p-2 rounded-lg w-20"
+										/>
+										<span className="relative -inset-x-12">{filament.unit}</span>
+									</>
+								)}
 							</div>
 						))}
 					</div>
@@ -189,30 +207,10 @@ export default function NewPrintForm({
 						onChange={(e) =>
 							setNewPrint({
 								...newPrint,
-								date: e.target.value,
+								date: new Date(e.target.value),
 							})
 						}
 					/>
-				</label>
-
-				{/* Filament Quantity */}
-				<label className="flex flex-col gap-1 mb-2">
-					Filament Quantity
-					<div className="flex flex-row items-center">
-						<input
-							className="bg-gray-900 rounded-lg pl-2 p-1 w-full text-right"
-							type="number"
-							value={newPrint.filamentQuantity || ""}
-							onChange={(e) =>
-								setNewPrint({
-									...newPrint,
-									filamentQuantity: Number(e.target.value),
-								})
-							}
-							placeholder="0"
-						/>
-						<span className="ml-2">g</span>
-					</div>
 				</label>
 
 				{/* Print Time */}
@@ -259,7 +257,7 @@ export default function NewPrintForm({
 						/>
 					</label>
 
-						{/* Print File Upload */}
+					{/* Print File Upload */}
 					<label className="flex flex-col gap-1 mb-2 bg-gray-800 rounded-lg p-2 cursor-pointer">
 						Print File
 						<div className="bg-gray-900 rounded-lg pl-2 p-1 flex items-center justify-between">
@@ -283,7 +281,6 @@ export default function NewPrintForm({
 						/>
 					</label>
 				</div>
-
 			</div>
 
 			{/* Buttons */}

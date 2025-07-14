@@ -37,10 +37,11 @@ export default function Print({
 
 	function calculatePriceFil() {
 		let total: number = 0;
-		Filaments.map((filament) => {
-			const priceForFilament: number = (filament.price / 1000 ) * Item.filamentQuantity
+		Filaments.map((filament, idx) => {
+			const priceForFilament: number = (filament.price / 1000 ) * Item.filamentsQuantity[idx];
 			total += priceForFilament;
 		});
+		//assert that Item.filamentsUsed.length == Filaments.length (i fucked up at the start of development)
 		return total / Item.filamentsUsed.length;
 	}
 
@@ -55,7 +56,7 @@ export default function Print({
 						<div className="h-32 w-32 min-h-32 min-w-32">
 							<img
 								className="cover rounded-tl-lg"
-								src={`${Item.image.replace("/", "")}`}
+								src={`prints/imgs/${Item.image.replace("/", "")}`}
 							/>
 						</div>
 					) : (
@@ -83,9 +84,9 @@ export default function Print({
 
 					<div className="flex flex-col">
 						{Filaments.length > 0 &&
-							Filaments.map((filament) => (
+							Filaments.map((filament, idx) => (
 								<div key={filament.id}>
-									{Item.filamentQuantity} {filament.unit} {filament.name} (
+									{Item.filamentsQuantity[idx]} {filament.unit} {filament.name} (
 									{filament.material})
 								</div>
 							))}

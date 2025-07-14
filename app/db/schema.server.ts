@@ -72,7 +72,7 @@ db.exec(`
 		printerUsed INTEGER NOT NULL,
 		filamentsUsed TEXT NOT NULL, -- JSON array of filament IDs
 		client INTEGER NOT NULL,
-		filamentQuantity INTEGER NOT NULL,
+		filamentsQuantity TEXT NOT NULL,
 		timeToPrint INTEGER NOT NULL,
 		file TEXT NOT NULL,
 		image TEXT NOT NULL,
@@ -313,11 +313,11 @@ if (printCount.count === 0) {
 		{
 			id: 1,
 			name: "Benchy",
-			date: "2025-02-01",
+			date: new Date("2025-02-01"),
 			printerUsed: 1,
 			filamentsUsed: [2],
 			client: 1,
-			filamentQuantity: 40,
+			filamentsQuantity: [40],
 			image: "/3DBenchy.png",
 			file: "",
 			timeToPrint: 50,
@@ -327,11 +327,11 @@ if (printCount.count === 0) {
 		{
 			id: 2,
 			name: "Pikachu",
-			date: "2024-03-05",
+			date: new Date("2024-03-05"),
 			printerUsed: 2,
 			filamentsUsed: [3, 2, 1],
 			client: 2,
-			filamentQuantity: 113,
+			filamentsQuantity: [113, 96, 120],
 			image: "/plate_1.png",
 			file: "",
 			timeToPrint: 345,
@@ -341,12 +341,12 @@ if (printCount.count === 0) {
 		{
 			id: 3,
 			name: "Boeing 747",
-			date: "2024-08-11",
+			date: new Date("2024-08-11"),
 			printerUsed: 2,
 			filamentsUsed: [3, 2, 1],
 			client: 2,
-			filamentQuantity: 113,
-			image: "/boeing747.png",
+			filamentsQuantity: [113, 96, 120],
+			image: "/boeing747.webp",
 			file: "",
 			timeToPrint: 345,
 			usedUpgrades: [66, 67],
@@ -355,18 +355,20 @@ if (printCount.count === 0) {
 	];
 
 	const insertPrint = db.prepare(`
-		INSERT INTO prints (name, date, printerUsed, filamentsUsed, client, filamentQuantity, timeToPrint, file, image, usedUpgrades, usedConsumables)
+		INSERT INTO prints (name, date, printerUsed, filamentsUsed, client, filamentsQuantity, timeToPrint, file, image, usedUpgrades, usedConsumables)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`);
 
 	const insertPrints = db.transaction((print: print) => {
 		insertPrint.run(
 			print.name,
-			print.date,
+			print.date.toLocaleString("fr-FR", {
+				timeZone: "Europe/Paris",
+			}),
 			print.printerUsed,
 			JSON.stringify(print.filamentsUsed),
 			print.client,
-			print.filamentQuantity,
+			JSON.stringify(print.filamentsQuantity),
 			print.timeToPrint,
 			print.file,
 			print.image,
