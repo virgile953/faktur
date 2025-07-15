@@ -22,4 +22,5 @@ export interface Printer {
 	consumption: number;
 	upgrades: Upgrade[];
 	consumables: Consumable[];
+	canPrint: string[]; // e.g., ["PLA", "PETG", "ABS"]
 }

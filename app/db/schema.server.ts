@@ -26,6 +26,7 @@ db.exec(`
 		name TEXT NOT NULL,
 		image TEXT NOT NULL,
 		price REAL NOT NULL,
+		canPrint TEXT NOT NULL,
 		consumption REAL NOT NULL,
 		archived INTEGER NOT NULL DEFAULT 0
 	);
@@ -73,7 +74,9 @@ db.exec(`
 		filamentsUsed TEXT NOT NULL, -- JSON array of filament IDs
 		client INTEGER NOT NULL,
 		filamentsQuantity TEXT NOT NULL,
+		timeToModel INTEGER NOT NULL,
 		timeToPrint INTEGER NOT NULL,
+		timeToPostProcess INTEGER NOT NULL,
 		file TEXT NOT NULL,
 		image TEXT NOT NULL,
 		usedUpgrades TEXT NOT NULL, -- JSON array of upgrade IDs
@@ -126,6 +129,7 @@ if (printerCount.count === 0) {
 			name: "Bambu-Lab X1Carbon",
 			price: 1800,
 			consumption: 50,
+			canPrint: ["PLA", "PPS-CF", "PETG", "ASA"],
 			upgrades: [
 				{
 					name: "Nozzle Biqu Hotend Revo RapidChange",
@@ -175,6 +179,7 @@ if (printerCount.count === 0) {
 			name: "Mars 3 Pro",
 			price: 300,
 			consumption: 50,
+			canPrint: ["Resin"],
 			upgrades: [
 				{
 					name: "Jacuzzy mode with bubbles",
@@ -202,6 +207,7 @@ if (printerCount.count === 0) {
 			name: "Creality ender 3",
 			price: 1800,
 			consumption: 50,
+			canPrint: ["PLA", "PETG", "ABS"],
 			upgrades: [
 				{
 					name: "BLTouch Auto Bed Leveling Sensor",
@@ -248,8 +254,8 @@ if (printerCount.count === 0) {
 
 	// Insert the data
 	const insertPrinter = db.prepare(`
-		INSERT INTO printers (name, image, price, consumption)
-		VALUES (?, ?, ?, ?)
+		INSERT INTO printers (name, image, price, consumption, canPrint)
+		VALUES (?, ?, ?, ?, ?)
 	`);
 
 	const insertUpgrade = db.prepare(`
@@ -268,7 +274,8 @@ if (printerCount.count === 0) {
 			printer.name,
 			printer.image,
 			printer.price,
-			printer.consumption
+			printer.consumption,
+			JSON.stringify(printer.canPrint)
 		);
 		const printerId = printerResult.lastInsertRowid as number;
 
@@ -304,9 +311,9 @@ if (printerCount.count === 0) {
 	console.log("Database seeded with initial data");
 }
 
-const printCount = db
-	.prepare("SELECT COUNT(*) as count FROM prints")
-	.get() as { count: number };
+const printCount = db.prepare("SELECT COUNT(*) as count FROM prints").get() as {
+	count: number;
+};
 
 if (printCount.count === 0) {
 	const prints: print[] = [
@@ -320,7 +327,9 @@ if (printCount.count === 0) {
 			filamentsQuantity: [40],
 			image: "/prints/imgs/3DBenchy.png",
 			file: "",
+			timeToModel: 30,
 			timeToPrint: 50,
+			timeToPostProcess: 10,
 			usedUpgrades: [66, 67],
 			usedConsumables: [63, 64, 65],
 		},
@@ -334,7 +343,9 @@ if (printCount.count === 0) {
 			filamentsQuantity: [113, 96, 120],
 			image: "/prints/imgs/plate_1.png",
 			file: "",
+			timeToModel: 30,
 			timeToPrint: 345,
+			timeToPostProcess: 10,
 			usedUpgrades: [66, 67],
 			usedConsumables: [63, 64, 65],
 		},
@@ -348,7 +359,9 @@ if (printCount.count === 0) {
 			filamentsQuantity: [245, 747],
 			image: "/prints/imgs/boeing747.webp",
 			file: "",
+			timeToModel: 30,
 			timeToPrint: 345,
+			timeToPostProcess: 10,
 			usedUpgrades: [66, 67],
 			usedConsumables: [63, 64, 65],
 		},

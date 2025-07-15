@@ -3,7 +3,7 @@ import { Consumable, Printer, Upgrade } from "~/types/Printer";
 
 // Get all printers with their relationships
 export function getAllPrinters(withArchived = false): Printer[] {
-	const printers = db
+	const dbPrinters = db
 		.prepare(
 			`
 		SELECT * FROM printers
@@ -12,6 +12,11 @@ export function getAllPrinters(withArchived = false): Printer[] {
 	`
 		)
 		.all() as Omit<Printer, "upgrades" | "consumables">[];
+
+		const printers = dbPrinters.map((printer) => ({
+			...printer,
+			canPrint: typeof printer.canPrint === 'string' ? JSON.parse(printer.canPrint || "[]") : printer.canPrint,
+		}));
 
 	// For each printer, get its upgrades and consumables
 	return printers.map((printer) => {
@@ -81,8 +86,8 @@ export function getPrinterById(id: number): Printer | null {
 // Create a new printer with its relationships
 export function createPrinter(printer: Printer): Printer {
 	const insertPrinter = db.prepare(`
-		INSERT INTO printers (name, image, price, consumption)
-		VALUES (?, ?, ?, ?)
+		INSERT INTO printers (name, image, price, consumption, canPrint)
+		VALUES (?, ?, ?, ?, ?)
 	`);
 
 	const insertUpgrade = db.prepare(`
@@ -101,7 +106,8 @@ export function createPrinter(printer: Printer): Printer {
 			printer.name,
 			printer.image,
 			printer.price,
-			printer.consumption
+			printer.consumption,
+			printer.canPrint
 		);
 
 		const newPrinterId = info.lastInsertRowid as number;
@@ -141,7 +147,7 @@ export function updatePrinter(printer: Printer): Printer | null {
 
 	const updatePrinterStmt = db.prepare(`
 		UPDATE printers
-		SET name = ?, image = ?, price = ?, consumption = ?
+		SET name = ?, image = ?, price = ?, consumption = ?, canPrint = ?
 		WHERE id = ?
 	`);
 
@@ -168,6 +174,7 @@ export function updatePrinter(printer: Printer): Printer | null {
 			printer.image,
 			printer.price,
 			printer.consumption,
+			printer.canPrint,
 			id
 		);
 

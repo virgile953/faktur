@@ -26,7 +26,9 @@ export default function NewPrintForm({
 		client: 0,
 		printerUsed: 0,
 		filamentsUsed: [],
+		timeToModel: 0,
 		timeToPrint: 0,
+		timeToPostProcess: 0,
 		image: "",
 		filamentsQuantity: [0],
 		file: "",
@@ -121,7 +123,7 @@ export default function NewPrintForm({
 
 	return (
 		<div className="max-w-7xl mx-auto px-4">
-			<h1 className="border border-gray-700 p-2 rounded-lg text-3xl mb-4">
+			<h1 className=" p-2 rounded-lg text-3xl mb-4">
 				Create a New Print
 			</h1>
 			<div className="border border-gray-700 p-6 rounded-lg grid md:grid-cols-[16rem_70%] gap-4">
@@ -232,6 +234,25 @@ export default function NewPrintForm({
 					/>
 				</label>
 
+				{/* Modelisation Time */}
+				<label className="flex flex-col gap-1 mb-2">
+					Modelisation Time
+					<div className="flex flex-row items-center">
+						<input
+							className="bg-gray-900 rounded-lg pl-2 p-1 w-full text-right"
+							type="number"
+							value={newPrint.timeToModel || ""}
+							onChange={(e) =>
+								setNewPrint({
+									...newPrint,
+									timeToModel: Number(e.target.value),
+								})
+							}
+							placeholder="0"
+						/>
+						<span className="ml-2">minutes</span>
+					</div>
+				</label>
 				{/* Print Time */}
 				<label className="flex flex-col gap-1 mb-2">
 					Print Time
@@ -244,6 +265,25 @@ export default function NewPrintForm({
 								setNewPrint({
 									...newPrint,
 									timeToPrint: Number(e.target.value),
+								})
+							}
+							placeholder="0"
+						/>
+						<span className="ml-2">minutes</span>
+					</div>
+				</label>
+				{/* postProcess Time */}
+				<label className="flex flex-col gap-1 mb-2">
+					Postprocess Time
+					<div className="flex flex-row items-center">
+						<input
+							className="bg-gray-900 rounded-lg pl-2 p-1 w-full text-right"
+							type="number"
+							value={newPrint.timeToPostProcess || ""}
+							onChange={(e) =>
+								setNewPrint({
+									...newPrint,
+									timeToPostProcess: Number(e.target.value),
 								})
 							}
 							placeholder="0"

@@ -6,7 +6,9 @@ export type print = {
 	filamentsUsed: number[];
 	client: number;
 	filamentsQuantity: number[];
+	timeToModel: number;
 	timeToPrint: number;
+	timeToPostProcess: number;
 	file: string;
 	image: string;
 	usedUpgrades: number[];

@@ -42,7 +42,7 @@ export default function Print({
 			total += priceForFilament;
 		});
 		//assert that Item.filamentsUsed.length == Filaments.length (i fucked up at the start of development)
-		return total / Item.filamentsUsed.length;
+		return total;
 	}
 
 	// useEffect(() => console.log(elecPrice));
@@ -113,6 +113,7 @@ export default function Print({
 						<>
 							<div>{calculatePriceElec().toFixed(2)} € elec</div>
 							<div>{calculatePriceFil().toFixed(2)} € filament</div>
+							<div>{(calculatePriceFil()+ calculatePriceElec()).toFixed(2)} € total</div>
 						</>
 					)}
 				</div>

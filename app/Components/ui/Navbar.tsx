@@ -54,6 +54,16 @@ const navElements: NavElement[] = [
 				icon: <BoltIcon height={22} />,
 			},
 			{
+				name: "3Mf Explorer",
+				href: "3MfExplorer",
+				icon: <WrenchScrewdriverIcon height={22} />,
+			},
+			{
+				name: "Consumables",
+				href: "Consumables",
+				icon: <StopCircleIcon height={22} />,
+			},
+			{
 				name: "About",
 				href: "About",
 				icon: <InformationCircleIcon height={22} />,
