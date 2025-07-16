@@ -4,7 +4,7 @@ export type print = {
 	date: Date;
 	printerUsed: number;
 	filamentsUsed: number[];
-	client: number;
+	clientId: number;
 	filamentsQuantity: number[];
 	timeToModel: number;
 	timeToPrint: number;

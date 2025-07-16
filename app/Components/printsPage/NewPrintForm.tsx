@@ -23,7 +23,7 @@ export default function NewPrintForm({
 	const [newPrint, setNewPrint] = useState<print>({
 		name: "",
 		date: new Date(),
-		client: 0,
+		clientId: 0,
 		printerUsed: 0,
 		filamentsUsed: [],
 		timeToModel: 0,
@@ -210,9 +210,9 @@ export default function NewPrintForm({
 					<input
 						className="bg-gray-900 rounded-lg pl-2 p-1"
 						type="text"
-						value={newPrint.client || ""}
+						value={newPrint.clientId || ""}
 						onChange={(e) =>
-							setNewPrint({ ...newPrint, client: Number(e.target.value) })
+							setNewPrint({ ...newPrint, clientId: Number(e.target.value) })
 						}
 						placeholder="Select client"
 					/>

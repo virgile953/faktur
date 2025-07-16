@@ -102,7 +102,7 @@ export default function ElectricityConfig({
 							step={0.0005}
 							min={0}
 							placeholder="0.1234"
-							value={elecPrice}
+							value={conso}
 							onChange={(e) => setConso(Number(e.target.value))}
 						/>
 					</label>
@@ -247,7 +247,6 @@ export default function ElectricityConfig({
 								return;
 							}
 							updateData();
-							// alert("" +  updateData());
 						}}
 					>
 						Save

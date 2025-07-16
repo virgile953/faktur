@@ -2,6 +2,7 @@ import { Database, SqliteError } from "better-sqlite3";
 import sqlite from "better-sqlite3";
 import { Consumable, Printer, Upgrade } from "~/types/Printer";
 import { print } from "~/types/Print";
+import { Client } from "~/types/Client";
 
 let db: Database;
 
@@ -72,7 +73,7 @@ db.exec(`
 		date TEXT NOT NULL,
 		printerUsed INTEGER NOT NULL,
 		filamentsUsed TEXT NOT NULL, -- JSON array of filament IDs
-		client INTEGER NOT NULL,
+		clientId INTEGER NOT NULL,
 		filamentsQuantity TEXT NOT NULL,
 		timeToModel INTEGER NOT NULL,
 		timeToPrint INTEGER NOT NULL,
@@ -94,6 +95,15 @@ db.exec(`
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		elecPrice REAL NOT NULL
 	);
+
+		CREATE TABLE IF NOT EXISTS clients (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		name TEXT NOT NULL,
+		email TEXT,
+		phone TEXT,
+		address TEXT,
+		archived INTEGER NOT NULL DEFAULT 0
+	);
 `);
 
 function addArchivedColumnIfNotExists(tableName: string) {
@@ -114,6 +124,7 @@ function addArchivedColumnIfNotExists(tableName: string) {
 addArchivedColumnIfNotExists("printers");
 addArchivedColumnIfNotExists("upgrades");
 addArchivedColumnIfNotExists("consumables");
+addArchivedColumnIfNotExists("clients");
 
 // Seed the database with initial data if it's empty
 const printerCount = db
@@ -323,7 +334,7 @@ if (printCount.count === 0) {
 			date: new Date("2025-02-01"),
 			printerUsed: 1,
 			filamentsUsed: [2],
-			client: 1,
+			clientId: 1,
 			filamentsQuantity: [40],
 			image: "/prints/imgs/3DBenchy.png",
 			file: "",
@@ -339,7 +350,7 @@ if (printCount.count === 0) {
 			date: new Date("2024-03-05"),
 			printerUsed: 2,
 			filamentsUsed: [3, 2, 1],
-			client: 2,
+			clientId: 2,
 			filamentsQuantity: [113, 96, 120],
 			image: "/prints/imgs/plate_1.png",
 			file: "",
@@ -355,7 +366,7 @@ if (printCount.count === 0) {
 			date: new Date("2024-08-11"),
 			printerUsed: 2,
 			filamentsUsed: [3, 1],
-			client: 2,
+			clientId: 2,
 			filamentsQuantity: [245, 747],
 			image: "/prints/imgs/boeing747.webp",
 			file: "",
@@ -368,7 +379,7 @@ if (printCount.count === 0) {
 	];
 
 	const insertPrint = db.prepare(`
-		INSERT INTO prints (name, date, printerUsed, filamentsUsed, client, filamentsQuantity, timeToPrint, file, image, usedUpgrades, usedConsumables)
+		INSERT INTO prints (name, date, printerUsed, filamentsUsed, clientId, filamentsQuantity, timeToPrint, file, image, usedUpgrades, usedConsumables)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`);
 
@@ -380,7 +391,7 @@ if (printCount.count === 0) {
 			}),
 			print.printerUsed,
 			JSON.stringify(print.filamentsUsed),
-			print.client,
+			print.clientId,
 			JSON.stringify(print.filamentsQuantity),
 			print.timeToPrint,
 			print.file,
@@ -395,6 +406,37 @@ if (printCount.count === 0) {
 	}
 
 	console.log("Database seeded with initial prints data");
+}
+
+const insertClients = db.prepare(`
+	INSERT INTO clients (name, email, phone, address)
+	VALUES (?, ?, ?, ?)
+`);
+
+const clientsCount = db
+	.prepare("SELECT COUNT(*) as count FROM clients")
+	.get() as { count: number };
+
+if (clientsCount.count === 0) {
+	const clients = [
+		{
+			name: "Virgile",
+			email: "virgile.barbera@gmail.com",
+			phone: "06 95 23 94 33",
+			address: "15 rue d'ermont, 95320 Saint-Leu-la-Forêt",
+		},
+		{
+			name: "Alex",
+			email: "Alex@zizi.com",
+			phone: "06 69 69 69 69",
+			address: "3eme porte a gauche, Eloyes",
+		}
+	] as Client[];
+
+	for (const client of clients) {
+		insertClients.run(client.name, client.email, client.phone, client.address);
+	}
+	console.log("Database seeded with initial clients data");
 }
 
 export { db };
