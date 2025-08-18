@@ -11,7 +11,7 @@ type TableLine = {
 	filamentType: string;
 	conso: number;
 	consoStr: string;
-};
+};	
 
 let coucou: Conso[] = [
 	{

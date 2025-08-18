@@ -52,7 +52,7 @@ export function getPrintById(id: number): print | null {
 // Create a new print
 export function createPrint(print: print): print {
 	const insertPrintReq = db.prepare(`
-			INSERT INTO prints (name, date, printerUsed, filamentsUsed, client, filamentsQuantity, timeToPrint, file, image, usedUpgrades, usedConsumables)
+			INSERT INTO prints (name, date, printerUsed, filamentsUsed, clientId, filamentsQuantity, timeToPrint, file, image, usedUpgrades, usedConsumables)
 			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 		`);
 

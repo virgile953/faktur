@@ -13,6 +13,7 @@ const NewPrinter: Printer = {
 	consumption: 0,
 	upgrades: [],
 	consumables: [],
+	canPrint: []
 };
 
 const NewConsumable: Consumable = {
