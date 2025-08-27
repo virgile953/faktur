@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Filament } from "~/types/Filament";
 import { Printer } from "~/types/Printer";
 import { print } from "~/types/Print";
@@ -23,6 +23,21 @@ export default function Prints({
 }) {
 	const [filteredPrints, setFilteredPrints] = useState(initialPrints);
 
+	// When the loader provides a new prints array (after delete/update), refresh the filtered view
+	useEffect(() => {
+		setFilteredPrints(initialPrints);
+	}, [initialPrints]);
+
+	// Optimistic removal when a print is deleted via fetcher
+	useEffect(() => {
+		function handleDeleted(e: any) {
+			const id = e.detail.id;
+			setFilteredPrints((prev) => prev.filter((p) => p.id !== id));
+		}
+		window.addEventListener("print-deleted", handleDeleted);
+		return () => window.removeEventListener("print-deleted", handleDeleted);
+	}, []);
+
 	return (
 		<>
 			<div className="mt-[130px] h-[calc(100vh-130px)] max-w-7xl mx-auto px-4">
@@ -43,7 +58,7 @@ export default function Prints({
 
 						const filamentsUsed = Filaments.filter((f) => {
 							return f?.id !== undefined && print.filamentsUsed.includes(f.id);
-						});
+						});``
 
 						const usedConsos = printerConsos.filter((conso) => {
 							return filamentsUsed.some(

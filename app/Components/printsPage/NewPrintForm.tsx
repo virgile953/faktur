@@ -1,9 +1,10 @@
 import { Link } from "@remix-run/react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { print } from "~/types/Print";
 import { Printer } from "~/types/Printer";
 import { Filament } from "~/types/Filament";
 import FilterSelect from "../Prints/FilterSelect";
+import { Conso } from "~/types/conso";
 
 interface NewPrintFormProps {
 	printers: Printer[];
@@ -13,40 +14,128 @@ interface NewPrintFormProps {
 		imageFile: File | null,
 		printFile: File | null
 	) => void;
+	initialPrint?: print; // when provided, form works in edit mode
+	submitLabel?: string;
+	title?: string;
 }
 
 export default function NewPrintForm({
 	printers,
 	filaments,
 	onSubmit,
+	initialPrint,
+	submitLabel = initialPrint ? "Save Changes" : "Create Print",
+	title = initialPrint ? "Edit Print" : "Create a New Print",
 }: NewPrintFormProps) {
-	const [newPrint, setNewPrint] = useState<print>({
-		name: "",
-		date: new Date(),
-		clientId: 0,
-		printerUsed: 0,
-		filamentsUsed: [],
-		timeToModel: 0,
-		timeToPrint: 0,
-		timeToPostProcess: 0,
-		image: "",
-		filamentsQuantity: [0],
-		file: "",
-		usedUpgrades: [],
-		usedConsumables: [],
-	});
+	const [newPrint, setNewPrint] = useState<print>(
+		initialPrint || {
+			name: "",
+			date: new Date(),
+			clientId: 0,
+			printerUsed: 0,
+			filamentsUsed: [],
+			timeToModel: 0,
+			timeToPrint: 0,
+			timeToPostProcess: 0,
+			image: "",
+			filamentsQuantity: [],
+			file: "",
+			usedUpgrades: [],
+			usedConsumables: [],
+		}
+	);
 
 	// Track selected filaments
-	const [selectedFilaments, setSelectedFilaments] = useState<number[]>([]);
+	const [selectedFilaments, setSelectedFilaments] = useState<number[]>(
+		initialPrint ? [...initialPrint.filamentsUsed] : []
+	);
 
 	// File input references and states
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [imageFile, setImageFile] = useState<File | null>(null);
-	const [imagePreview, setImagePreview] = useState<string | null>(null);
+	const [imagePreview, setImagePreview] = useState<string | null>(
+		initialPrint?.image ? initialPrint.image : null
+	);
 
 	// Print file input references and states
 	const printFileInputRef = useRef<HTMLInputElement>(null);
 	const [printFile, setPrintFile] = useState<File | null>(null);
+
+	// dynamic calculated data
+	const [filamentsPrices, setFilamentsPrices] = useState<number>(0);
+	const [electricityPrices, setElectricityPrices] = useState<number>(0);
+	const [laborPrices, setLaborPrices] = useState<number>(30);
+
+	const [elecPrices, setElecPrices] = useState<Conso[]>([]);
+	const [priceKw, setPriceKw] = useState<number>(0);
+	const [laborCosts, setLaborCosts] = useState<number>(0);
+	// get the prices for electricity and consumptions
+	useEffect(() => {
+		const fetchElectricityPrices = async () => {
+			try {
+				const elecPrices = await fetch("/api/electricity");
+				var consos: Conso[] = [];
+				var elecPrice: number = 0;
+				({ consos, elecPrice } = await elecPrices.json());
+				console.log("ElecPrice: ", elecPrice);
+				console.log("Consos: ", consos);
+				if (consos) setElecPrices(consos);
+				setPriceKw(elecPrice);
+			} catch (error) {
+				console.error("Failed to fetch electricity prices:", error);
+			}
+		};
+		fetchElectricityPrices();
+	}, []);
+
+
+
+	//Calculate the price of the print
+	useEffect(() => {
+		//Filaments prices
+		const usedFilaments = filaments.filter(f => selectedFilaments.includes(f.id!));
+		const totalFilaments = usedFilaments.map(f => {
+			// use the index in newPrint.filamentsUsed to get the matching quantity
+			const idx = newPrint.filamentsUsed.indexOf(f.id!);
+			const qty = idx !== -1 ? newPrint.filamentsQuantity[idx] || 0 : 0;
+			return qty * (f.price || 0) / 1000;
+			// price is per kg, quantity is in grams (divide by 1000)
+		});
+		setFilamentsPrices(totalFilaments.reduce((a, b) => a + b, 0));
+
+		// Electricity cost (per printer/material, weighted by filament quantity)
+		const qtyFor = (f: (typeof usedFilaments)[number]) => {
+			const idx = newPrint.filamentsUsed.indexOf(f.id!);
+			return idx !== -1 ? newPrint.filamentsQuantity[idx] || 0 : 0;
+		};
+		const totalQty = usedFilaments.reduce((sum, f) => sum + qtyFor(f), 0);
+		const hours = (newPrint.timeToPrint || 0) / 60;
+
+		let totalCost = 0;
+		usedFilaments.forEach(f => {
+			const consumption = elecPrices.find(
+				e => e.filamentType === f.material && e.printerId === newPrint.printerUsed
+			);
+			if (!consumption) return;
+
+			const ratio =
+				totalQty > 0
+					? qtyFor(f) / totalQty
+					: usedFilaments.length > 0
+						? 1 / usedFilaments.length
+						: 0;
+
+			totalCost += hours * consumption.consoKw * priceKw * ratio / 1000;
+		});
+
+		setElectricityPrices(Number.isFinite(totalCost) ? totalCost : 0);
+
+		// Labor costs
+		console.log("Labor Costs: ", laborPrices);
+		const totalLabor = (newPrint.timeToModel + newPrint.timeToPostProcess) * laborPrices / 60;
+		setLaborCosts(Number.isFinite(totalLabor) ? totalLabor : 0);
+	}, [newPrint, elecPrices, priceKw, filaments, selectedFilaments, laborPrices])
+
 
 	// Handle image file selection
 	const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,16 +185,23 @@ export default function NewPrintForm({
 	// Handle filament selection
 	const handleFilamentSelect = (filamentId: number) => {
 		if (selectedFilaments.includes(filamentId)) {
+			// remove
+			const idx = newPrint.filamentsUsed.indexOf(filamentId);
+			const newUsed = newPrint.filamentsUsed.filter((id) => id !== filamentId);
+			const newQty = newPrint.filamentsQuantity.filter((_, i) => i !== idx);
 			setSelectedFilaments(selectedFilaments.filter((id) => id !== filamentId));
 			setNewPrint({
 				...newPrint,
-				filamentsUsed: newPrint.filamentsUsed.filter((id) => id !== filamentId),
+				filamentsUsed: newUsed,
+				filamentsQuantity: newQty,
 			});
 		} else {
+			// add
 			setSelectedFilaments([...selectedFilaments, filamentId]);
 			setNewPrint({
 				...newPrint,
 				filamentsUsed: [...newPrint.filamentsUsed, filamentId],
+				filamentsQuantity: [...newPrint.filamentsQuantity, 0],
 			});
 		}
 	};
@@ -123,9 +219,7 @@ export default function NewPrintForm({
 
 	return (
 		<div className="max-w-7xl mx-auto px-4">
-			<h1 className=" p-2 rounded-lg text-3xl mb-4">
-				Create a New Print
-			</h1>
+			<h1 className=" p-2 rounded-lg text-3xl mb-4">{title}</h1>
 			<div className="border border-gray-700 p-6 rounded-lg grid md:grid-cols-[16rem_70%] gap-4">
 				{/* Printer selector */}
 				<label className="flex flex-col gap-1 mb-2">
@@ -152,11 +246,10 @@ export default function NewPrintForm({
 							<div
 								key={filament.id}
 								onClick={() => handleFilamentSelect(filament.id!)}
-								className={`rounded-lg cursor-pointer flex items-center gap-4 h-12 w-fit pr-3 border border-gray-700 ${
-									selectedFilaments.includes(filament.id!)
-										? "bg-blue-600"
-										: "bg-gray-800"
-								}`}
+								className={`rounded-lg cursor-pointer flex items-center gap-4 h-12 w-fit pr-3 border border-gray-700 ${selectedFilaments.includes(filament.id!)
+									? "bg-blue-600"
+									: "bg-gray-800"
+									}`}
 							>
 								<img
 									src={`${filament.image}`}
@@ -167,25 +260,30 @@ export default function NewPrintForm({
 								<div className="ml-auto text-gray-400 text-sm">
 									{filament.material}
 								</div>
-								{selectedFilaments.includes(filament.id!) && (
-									<>
-										<input
-											onClick={(e) => e.stopPropagation()}
-											onChange={(e) =>
-												handleQuantityChange(
-													filament.id!,
-													Number(e.target.value)
-												)
-											}
-											min={0}
-											type="number"
-											className="text-gray-400 p-2 rounded-lg w-20"
-										/>
-										<span className="relative -inset-x-12">
-											{filament.unit}
-										</span>
-									</>
-								)}
+								{selectedFilaments.includes(filament.id!) && (() => {
+									const idx = newPrint.filamentsUsed.indexOf(filament.id!);
+									const qty = idx !== -1 && newPrint.filamentsQuantity[idx] !== undefined
+										? newPrint.filamentsQuantity[idx]
+										: 0;
+									return (
+										<>
+											<input
+												onClick={(e) => e.stopPropagation()}
+												value={qty}
+												onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+													handleQuantityChange(
+														filament.id!,
+														Number(e.target.value)
+													)
+												}
+												min={0}
+												type="number"
+												className="text-gray-400 p-2 rounded-lg w-20"
+											/>
+											<span className="relative -inset-x-12">{filament.unit}</span>
+										</>
+									);
+								})()}
 							</div>
 						))}
 					</div>
@@ -339,7 +437,40 @@ export default function NewPrintForm({
 							onChange={handlePrintFileSelect}
 						/>
 					</label>
+
 				</div>
+				<label className="block mb-2 w-full">
+					Price estimate
+					<div>
+						Filament : {filamentsPrices}€
+					</div>
+
+					<div>
+						electricity : {electricityPrices.toFixed(2)}€ (at {priceKw}€/kWh)
+					</div>
+					<div>
+						labor : {laborCosts.toFixed(2)}€
+					</div>
+					<div>
+						total : {(filamentsPrices + electricityPrices + laborCosts).toFixed(2)}€
+					</div>
+					<label className="p-2 flex flex-col border border-gray-700 rounded-lg m-2">
+						<div>Hourly rate:
+							<input className="bg-gray-900 rounded-lg ml-2 pl-2 p-1 text-right"
+								type="number"
+								
+								value={laborPrices}
+								onChange={(e) => setLaborPrices(Number(e.target.value))} />
+								€/h</div>
+						<input className="w-full"
+							type="range"
+							min="1"
+							max="100"
+							value={laborPrices}
+							onChange={(e) => setLaborPrices(Number(e.target.value))} />
+					</label>
+
+				</label>
 			</div>
 
 			{/* Buttons */}
@@ -353,7 +484,7 @@ export default function NewPrintForm({
 					className="bg-gradient-to-t from-gray-900 to-gray-800 border border-gray-700 px-4 py-2 rounded-lg"
 					onClick={handleSubmit}
 				>
-					Create Print
+					{submitLabel}
 				</button>
 			</div>
 		</div>

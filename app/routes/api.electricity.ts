@@ -1,6 +1,13 @@
 import { type ActionFunctionArgs } from "@remix-run/node"; // or cloudflare/deno
-import { updateConsos, updateElecPrice } from "~/db/conso.server";
+import { getAllConso, getElecPrice, updateConsos, updateElecPrice } from "~/db/conso.server";
 import { Conso } from "~/types/conso";
+import type { LoaderFunction } from "@remix-run/node";
+
+export const loader: LoaderFunction = async () => {
+	const consos = getAllConso();
+	const elecPrice = getElecPrice();
+	return Response.json({ consos, elecPrice });
+};
 
 export async function action({ request }: ActionFunctionArgs) {
 	switch (request.method) {

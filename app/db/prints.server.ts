@@ -52,8 +52,8 @@ export function getPrintById(id: number): print | null {
 // Create a new print
 export function createPrint(print: print): print {
 	const insertPrintReq = db.prepare(`
-			INSERT INTO prints (name, date, printerUsed, filamentsUsed, clientId, filamentsQuantity, timeToPrint, file, image, usedUpgrades, usedConsumables)
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+			INSERT INTO prints (name, date, printerUsed, filamentsUsed, clientId, filamentsQuantity, timeToModel, timeToPrint, timeToPostProcess, file, image, usedUpgrades, usedConsumables)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 		`);
 
 	const result = insertPrintReq.run(
@@ -63,7 +63,9 @@ export function createPrint(print: print): print {
 		JSON.stringify(print.filamentsUsed),
 		print.clientId,
 		JSON.stringify(print.filamentsQuantity),
+		print.timeToModel,
 		print.timeToPrint,
+		print.timeToPostProcess,
 		print.file,
 		print.image,
 		JSON.stringify(print.usedUpgrades),
@@ -82,7 +84,7 @@ export function updatePrint(print: print): print | null {
 
 	const updatePrintReq = db.prepare(`
 		UPDATE prints
-		SET name = ?, date = ?, printerUsed = ?, filamentsUsed = ?, client = ?, filamentsQuantity = ?, timeToPrint = ?, file = ?, image = ?, usedUpgrades = ?, usedConsumables = ?
+		SET name = ?, date = ?, printerUsed = ?, filamentsUsed = ?, clientId = ?, filamentsQuantity = ?, timeToModel = ?, timeToPrint = ?, timeToPostProcess = ?, file = ?, image = ?, usedUpgrades = ?, usedConsumables = ?
 		WHERE id = ?
 		`);
 
@@ -93,7 +95,9 @@ export function updatePrint(print: print): print | null {
 		JSON.stringify(print.filamentsUsed),
 		print.clientId,
 		JSON.stringify(print.filamentsQuantity),
+		print.timeToModel,
 		print.timeToPrint,
+		print.timeToPostProcess,
 		print.file,
 		print.image,
 		JSON.stringify(print.usedUpgrades),

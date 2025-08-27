@@ -17,6 +17,7 @@
 		"@remix-run/react": "^2.16.2",
 		"@remix-run/serve": "^2.16.2",
 		"better-sqlite3": "^11.9.1",
+		"caniuse-lite": "^1.0.30001737",
 		"fflate": "^0.8.2",
 		"heroicons": "^2.2.0",
 		"isbot": "^4.1.0",
