@@ -456,15 +456,14 @@ export default function NewPrintForm({
 					</div>
 					<label className="p-2 flex flex-col border border-gray-700 rounded-lg m-2">
 						<div>Hourly rate:
-							<input className="bg-gray-900 rounded-lg ml-2 pl-2 p-1 text-right"
+							<input className="bg-gray-900 rounded-lg mx-2 px-2 p-1 text-right"
 								type="number"
-								
 								value={laborPrices}
 								onChange={(e) => setLaborPrices(Number(e.target.value))} />
-								€/h</div>
-						<input className="w-full"
+							€/h</div>
+						<input className="w-full rounded-lg p-2 text-right accent-green-500"
 							type="range"
-							min="1"
+							min="0"
 							max="100"
 							value={laborPrices}
 							onChange={(e) => setLaborPrices(Number(e.target.value))} />
